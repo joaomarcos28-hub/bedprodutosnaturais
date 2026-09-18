@@ -1,24 +1,31 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { useEffect } from "react";
+import { Leaf } from "lucide-react";
+import { useSession } from "@/lib/auth";
 
-// No head() here: the home route inherits title/description/og/twitter from
-// __root.tsx, and ships no og:image so serve-time hosting can inject the
-// project's social preview (explicit og:image or latest screenshot).
+// A home direciona para o painel (logado) ou para a tela de entrada.
 export const Route = createFileRoute("/")({
   component: Index,
 });
 
-// IMPORTANT: Replace this placeholder. See ./README.md for routing conventions.
 function Index() {
+  const { data: session, isLoading } = useSession();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (isLoading) return;
+    navigate({ to: session ? "/dashboard" : "/auth", replace: true });
+  }, [isLoading, session, navigate]);
+
   return (
-    <div
-      className="flex min-h-screen items-center justify-center"
-      style={{ backgroundColor: "#fcfbf8" }}
-    >
-      <img
-        data-lovable-blank-page-placeholder="REMOVE_THIS"
-        src="https://cdn.gpteng.co/blank-app-v1.svg"
-        alt="Your app will live here!"
-      />
+    <div className="flex min-h-screen items-center justify-center bg-background">
+      <div className="flex flex-col items-center gap-3">
+        <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary text-primary-foreground">
+          <Leaf className="h-7 w-7" />
+        </span>
+        <p className="font-display text-lg font-semibold">BeD Produtos Naturais</p>
+        <div className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+      </div>
     </div>
   );
 }
