@@ -14,16 +14,375 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      campaigns: {
+        Row: {
+          created_at: string
+          end_date: string
+          id: string
+          name: string | null
+          number: number
+          start_date: string
+          status: string
+          supervisor_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          end_date: string
+          id?: string
+          name?: string | null
+          number: number
+          start_date: string
+          status?: string
+          supervisor_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          end_date?: string
+          id?: string
+          name?: string | null
+          number?: number
+          start_date?: string
+          status?: string
+          supervisor_id?: string | null
+        }
+        Relationships: []
+      }
+      location_pings: {
+        Row: {
+          id: string
+          latitude: number
+          longitude: number
+          recorded_at: string
+          seller_id: string
+        }
+        Insert: {
+          id?: string
+          latitude: number
+          longitude: number
+          recorded_at?: string
+          seller_id: string
+        }
+        Update: {
+          id?: string
+          latitude?: number
+          longitude?: number
+          recorded_at?: string
+          seller_id?: string
+        }
+        Relationships: []
+      }
+      movements: {
+        Row: {
+          actor_id: string | null
+          created_at: string
+          id: string
+          note: string | null
+          product_id: string | null
+          quantity: number
+          seller_id: string | null
+          type: string
+        }
+        Insert: {
+          actor_id?: string | null
+          created_at?: string
+          id?: string
+          note?: string | null
+          product_id?: string | null
+          quantity: number
+          seller_id?: string | null
+          type: string
+        }
+        Update: {
+          actor_id?: string | null
+          created_at?: string
+          id?: string
+          note?: string | null
+          product_id?: string | null
+          quantity?: number
+          seller_id?: string | null
+          type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "movements_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      products: {
+        Row: {
+          barcode: string | null
+          category: string | null
+          central_stock: number
+          created_at: string
+          id: string
+          low_stock_threshold: number
+          name: string
+          sale_price: number
+          unit_cost: number
+        }
+        Insert: {
+          barcode?: string | null
+          category?: string | null
+          central_stock?: number
+          created_at?: string
+          id?: string
+          low_stock_threshold?: number
+          name: string
+          sale_price?: number
+          unit_cost?: number
+        }
+        Update: {
+          barcode?: string | null
+          category?: string | null
+          central_stock?: number
+          created_at?: string
+          id?: string
+          low_stock_threshold?: number
+          name?: string
+          sale_price?: number
+          unit_cost?: number
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          full_name: string
+          id: string
+          phone: string | null
+          team_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          full_name?: string
+          id: string
+          phone?: string | null
+          team_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          full_name?: string
+          id?: string
+          phone?: string | null
+          team_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "profiles_team_id_fkey"
+            columns: ["team_id"]
+            isOneToOne: false
+            referencedRelation: "teams"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      sale_items: {
+        Row: {
+          id: string
+          product_id: string | null
+          quantity: number
+          sale_id: string
+          unit_price: number
+        }
+        Insert: {
+          id?: string
+          product_id?: string | null
+          quantity: number
+          sale_id: string
+          unit_price?: number
+        }
+        Update: {
+          id?: string
+          product_id?: string | null
+          quantity?: number
+          sale_id?: string
+          unit_price?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sale_items_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sale_items_sale_id_fkey"
+            columns: ["sale_id"]
+            isOneToOne: false
+            referencedRelation: "sales"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      sales: {
+        Row: {
+          campaign_id: string | null
+          created_at: string
+          customer_name: string | null
+          day_number: number | null
+          id: string
+          latitude: number | null
+          longitude: number | null
+          payment_method: string
+          photo_url: string | null
+          seller_id: string
+          signature_url: string | null
+          total: number
+        }
+        Insert: {
+          campaign_id?: string | null
+          created_at?: string
+          customer_name?: string | null
+          day_number?: number | null
+          id?: string
+          latitude?: number | null
+          longitude?: number | null
+          payment_method?: string
+          photo_url?: string | null
+          seller_id: string
+          signature_url?: string | null
+          total?: number
+        }
+        Update: {
+          campaign_id?: string | null
+          created_at?: string
+          customer_name?: string | null
+          day_number?: number | null
+          id?: string
+          latitude?: number | null
+          longitude?: number | null
+          payment_method?: string
+          photo_url?: string | null
+          seller_id?: string
+          signature_url?: string | null
+          total?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sales_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "campaigns"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      seller_stock: {
+        Row: {
+          id: string
+          product_id: string
+          quantity: number
+          seller_id: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          product_id: string
+          quantity?: number
+          seller_id: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          product_id?: string
+          quantity?: number
+          seller_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "seller_stock_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      teams: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          supervisor_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          supervisor_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          supervisor_id?: string | null
+        }
+        Relationships: []
+      }
+      user_roles: {
+        Row: {
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      adjust_central_stock: {
+        Args: { p_delta: number; p_note?: string; p_product_id: string }
+        Returns: undefined
+      }
+      deliver_to_seller: {
+        Args: { p_items: Json; p_seller_id: string }
+        Returns: undefined
+      }
+      ensure_profile: { Args: { p_full_name: string }; Returns: undefined }
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
+      is_team_supervisor: {
+        Args: { p_seller: string; p_supervisor: string }
+        Returns: boolean
+      }
+      register_sale: {
+        Args: {
+          p_customer?: string
+          p_items: Json
+          p_latitude?: number
+          p_longitude?: number
+          p_payment?: string
+          p_photo?: string
+          p_signature?: string
+        }
+        Returns: string
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "owner" | "supervisor" | "seller"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +509,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["owner", "supervisor", "seller"],
+    },
   },
 } as const
