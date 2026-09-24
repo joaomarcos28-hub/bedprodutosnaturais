@@ -8,6 +8,13 @@
       "when": 1789693875417,
       "tag": "0000_bed_produtos_naturais_schema",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1790273539527,
+      "tag": "0001_dono_le_papeis_e_ligacoes",
+      "breakpoints": true
     }
   ]
 }
