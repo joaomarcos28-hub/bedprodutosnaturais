@@ -117,8 +117,8 @@ function ProdutosPage() {
       barcode: p.barcode ?? "",
       name: p.name,
       category: p.category ?? "",
-      unit_cost: p.unit_cost,
-      sale_price: p.sale_price,
+      unit_cost: String(p.unit_cost),
+      sale_price: String(p.sale_price),
       central_stock: String(p.central_stock),
       low_stock_threshold: String(p.low_stock_threshold),
     });

@@ -97,12 +97,12 @@ export function VenderPage() {
       const payloadItems = items.map((i) => ({ product_id: i.productId, quantity: i.qty }));
       const { data: saleId, error } = await supabase.rpc("register_sale", {
         p_items: payloadItems,
-        p_customer: customer.trim() || null,
+        p_customer: customer.trim() || undefined,
         p_payment: payment,
-        p_latitude: latitude,
-        p_longitude: longitude,
-        p_photo: photoPath,
-        p_signature: sigPath,
+        p_latitude: latitude ?? undefined,
+        p_longitude: longitude ?? undefined,
+        p_photo: photoPath ?? undefined,
+        p_signature: sigPath ?? undefined,
       });
       if (error) throw error;
       return saleId as string;
