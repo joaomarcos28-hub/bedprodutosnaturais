@@ -77,7 +77,7 @@ function OwnerDashboard() {
 
   const totalCentral = data.products.reduce((s, p) => s + p.central_stock, 0);
   const totalField = data.stock.reduce((s, r) => s + r.quantity, 0);
-  const vendasHoje = data.salesToday.reduce((s, r) => s + parseFloat(r.total), 0);
+  const vendasHoje = data.salesToday.reduce((s, r) => s + Number(r.total), 0);
   const vendidosHoje = data.itemsToday.reduce((s, r) => s + r.quantity, 0);
   const sellers = data.profiles.filter((p) => p.team_id !== null).length;
   const low = data.products.filter((p) => p.central_stock <= p.low_stock_threshold);
@@ -200,10 +200,10 @@ function SupervisorDashboard() {
   }
   if (isLoading || !data) return <Spinner />;
 
-  const priceById = new Map(data.products.map((p) => [p.id, parseFloat(p.sale_price)]));
+  const priceById = new Map(data.products.map((p) => [p.id, Number(p.sale_price)]));
   const stockUnits = data.stock.reduce((s, r) => s + r.quantity, 0);
   const stockValue = data.stock.reduce((s, r) => s + r.quantity * (priceById.get(r.product_id) ?? 0), 0);
-  const vendasHoje = data.salesToday.reduce((s, r) => s + parseFloat(r.total), 0);
+  const vendasHoje = data.salesToday.reduce((s, r) => s + Number(r.total), 0);
 
   return (
     <div className="space-y-6">
@@ -263,7 +263,7 @@ function SellerDashboard() {
   if (isLoading || !data) return <Spinner />;
 
   const units = data.stock.reduce((s, r) => s + r.quantity, 0);
-  const vendasHoje = data.salesToday.reduce((s, r) => s + parseFloat(r.total), 0);
+  const vendasHoje = data.salesToday.reduce((s, r) => s + Number(r.total), 0);
 
   return (
     <div className="space-y-6">

@@ -285,7 +285,7 @@ function SupervisorTeam() {
   if (isLoading || !data) return <Spinner />;
 
   const sellerNames = new Map(data.members.map((m) => [m.id, m.full_name]));
-  const totalDelivered = data.salesToday.reduce((s, r) => s + parseFloat(r.total), 0);
+  const totalDelivered = data.salesToday.reduce((s, r) => s + Number(r.total), 0);
 
   return (
     <div className="space-y-6">
@@ -299,7 +299,7 @@ function SupervisorTeam() {
       <div className="grid gap-4 md:grid-cols-2">
         {data.members.map((m) => {
           const units = data.stock.filter((r) => r.seller_id === m.id).reduce((s, r) => s + r.quantity, 0);
-          const vendas = data.salesToday.filter((s) => s.seller_id === m.id).reduce((s, r) => s + parseFloat(r.total), 0);
+          const vendas = data.salesToday.filter((s) => s.seller_id === m.id).reduce((s, r) => s + Number(r.total), 0);
           return (
             <Card key={m.id}>
               <CardContent className="flex items-center justify-between gap-3 p-4">

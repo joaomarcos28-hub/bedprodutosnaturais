@@ -46,7 +46,7 @@ function VendasPage() {
   if (roleLoading || isLoading || !sales) return <Spinner />;
 
   const today = startOfToday();
-  const totalHoje = sales.filter((s) => s.created_at >= today).reduce((acc, s) => acc + parseFloat(s.total), 0);
+  const totalHoje = sales.filter((s) => s.created_at >= today).reduce((acc, s) => acc + Number(s.total), 0);
 
   return (
     <div className="space-y-6">

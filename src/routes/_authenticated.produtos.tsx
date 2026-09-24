@@ -74,8 +74,8 @@ function ProdutosPage() {
         barcode: form.barcode.trim() || null,
         name: form.name.trim(),
         category: form.category.trim() || null,
-        unit_cost: parseFloat(form.unit_cost || "0"),
-        sale_price: parseFloat(form.sale_price || "0"),
+        unit_cost: Number(form.unit_cost || "0"),
+        sale_price: Number(form.sale_price || "0"),
         central_stock: parseInt(form.central_stock || "0", 10),
         low_stock_threshold: parseInt(form.low_stock_threshold || "10", 10),
       };

@@ -138,7 +138,7 @@ export function VenderPage() {
     setScanning(false);
     const row = stock?.find((s) => s.product && (s.product as unknown as { barcode?: string }).barcode === code.trim());
     if (row?.product) {
-      addItem(row.product.id, row.product.name, parseFloat(row.product.sale_price), row.quantity);
+      addItem(row.product.id, row.product.name, Number(row.product.sale_price), row.quantity);
       toast.success("Produto adicionado: " + row.product.name);
     } else {
       toast.info("Esse código não está no seu estoque. Veja “Meu estoque” ou peça entrega ao supervisor.");
@@ -210,7 +210,7 @@ export function VenderPage() {
                         {brl(r.product.sale_price)} · {r.quantity} disponíveis
                       </p>
                     </div>
-                    <Button size="sm" variant="outline" onClick={() => addItem(r.product!.id, r.product!.name, parseFloat(r.product!.sale_price), r.quantity)}>
+                    <Button size="sm" variant="outline" onClick={() => addItem(r.product!.id, r.product!.name, Number(r.product!.sale_price), r.quantity)}>
                       Adicionar
                     </Button>
                   </div>

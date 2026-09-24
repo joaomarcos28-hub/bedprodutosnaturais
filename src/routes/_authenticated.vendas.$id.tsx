@@ -126,7 +126,7 @@ function SaleDetail() {
                   <span>
                     {it.quantity}× {it.product?.name ?? "Produto"}
                   </span>
-                  <span className="font-medium">{brl(parseFloat(it.unit_price) * it.quantity)}</span>
+                  <span className="font-medium">{brl(Number(it.unit_price) * it.quantity)}</span>
                 </div>
               ))}
             </div>

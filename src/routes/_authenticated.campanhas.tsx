@@ -114,7 +114,7 @@ function CampanhasPage() {
     campaignSales.sales.forEach((s) => {
       const d = s.day_number ?? 0;
       const cur = m.get(d) ?? { total: 0, count: 0 };
-      cur.total += parseFloat(s.total);
+      cur.total += Number(s.total);
       cur.count += 1;
       m.set(d, cur);
     });
@@ -205,7 +205,7 @@ function CampanhasPage() {
                     .reduce((rows, s) => {
                       const key = s.seller_id;
                       const cur = rows.get(key) ?? { name: campaignSales.names.get(key) ?? "—", total: 0, count: 0 };
-                      cur.total += parseFloat(s.total);
+                      cur.total += Number(s.total);
                       cur.count += 1;
                       rows.set(key, cur);
                       return rows;
@@ -216,7 +216,7 @@ function CampanhasPage() {
                     .reduce((rows, s) => {
                       const key = s.seller_id;
                       const cur = rows.get(key) ?? { name: campaignSales.names.get(key) ?? "—", total: 0, count: 0 };
-                      cur.total += parseFloat(s.total);
+                      cur.total += Number(s.total);
                       cur.count += 1;
                       rows.set(key, cur);
                       return rows;
