@@ -105,7 +105,7 @@ export function VenderPage() {
         p_signature?: string;
       } = { p_items: payloadItems, p_payment: payment };
       if (customer.trim()) rpcArgs.p_customer = customer.trim();
-      if (latitude != null) {
+      if (latitude != null && longitude != null) {
         rpcArgs.p_latitude = latitude;
         rpcArgs.p_longitude = longitude;
       }
