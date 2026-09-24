@@ -1,12 +1,13 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { createTeamUser } from "@/lib/users.functions";
 import { useMyRole, useMyProfile, useMyTeam } from "@/lib/auth";
-import { brl, startOfTodayISO, paymentLabel } from "@/lib/team-helpers";
+import { brl, startOfToday } from "@/lib/format";
 import { Badge, Button, Card, CardContent, CardHeader, CardTitle, Input, Label, Spinner } from "@/components/ui";
 import { Modal } from "@/components/Modal";
+import { QtyPicker } from "@/components/QtyPicker";
 import { toast } from "sonner";
 import { HandCoins, PackagePlus, UserPlus, Users } from "lucide-react";
 import type { Product } from "@/lib/types";
