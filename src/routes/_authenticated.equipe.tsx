@@ -351,16 +351,3 @@ function SupervisorTeam() {
   );
 }
 
-export function QtyPicker({ value, onChange }: { value: number; onChange: (v: number) => void }) {
-  return (
-    <div className="flex items-center gap-1.5">
-      <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => onChange(value - 1)} aria-label="Menos">
-        −
-      </Button>
-      <span className="w-8 text-center text-sm font-semibold">{value}</span>
-      <Button variant="outline" size="icon" className="h-8 w-8" onClick={() => onChange(value + 1)} aria-label="Mais">
-        +
-      </Button>
-    </div>
-  );
-}

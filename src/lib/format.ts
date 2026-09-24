@@ -38,6 +38,16 @@ export const paymentLabels: Record<string, string> = {
   cartao: "Cartão",
 };
 
+export function startOfToday(): string {
+  const d = new Date();
+  d.setHours(0, 0, 0, 0);
+  return d.toISOString();
+}
+
+export function paymentLabel(m: string): string {
+  return m === "pix" ? "PIX" : m === "dinheiro" ? "Dinheiro" : m === "cartao" ? "Cartão" : m;
+}
+
 export function addDays(date: Date, days: number): Date {
   const d = new Date(date);
   d.setDate(d.getDate() + days);
