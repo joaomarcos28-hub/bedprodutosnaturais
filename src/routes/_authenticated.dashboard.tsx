@@ -292,7 +292,7 @@ function SellerDashboard() {
         <CardContent className="space-y-2">
           {data.stock.length === 0 && <p className="text-sm text-muted-foreground">Você ainda não recebeu produtos. Peça ao seu supervisor.</p>}
           {data.stock.map((r) => {
-            const p = r.product as { name: string; sale_price: string } | null;
+            const p = r.product as { name: string; sale_price: number } | null;
             return (
               <div key={(p?.name ?? "?") + r.quantity} className="flex items-center justify-between rounded-lg bg-secondary/60 px-3 py-2">
                 <span className="text-sm font-medium">{p?.name ?? "Produto"}</span>

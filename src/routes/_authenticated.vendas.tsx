@@ -38,7 +38,7 @@ function VendasPage() {
         .order("created_at", { ascending: false })
         .limit(200);
       if (error) throw error;
-      return data as SaleRow[];
+      return data as unknown as SaleRow[];
     },
     refetchInterval: 20_000,
   });

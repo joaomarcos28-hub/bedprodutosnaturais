@@ -29,7 +29,7 @@ export const Route = createFileRoute("/_authenticated/vender")({
 interface StockRow {
   product_id: string;
   quantity: number;
-  product: { id: string; name: string; sale_price: string } | null;
+  product: { id: string; name: string; sale_price: number } | null;
 }
 
 export function VenderPage() {
@@ -60,7 +60,7 @@ export function VenderPage() {
         .gt("quantity", 0)
         .order("updated_at", { ascending: false });
       if (error) throw error;
-      return data as StockRow[];
+      return data as unknown as StockRow[];
     },
   });
 

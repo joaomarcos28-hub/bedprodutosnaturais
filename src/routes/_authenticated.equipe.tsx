@@ -240,7 +240,7 @@ function SupervisorTeam() {
     queryKey: ["team-supervisor", teamId],
     enabled: !!teamId,
     queryFn: async () => {
-      const t = startOfTodayISO();
+      const t = startOfToday();
       const [members, stock, products, salesToday] = await Promise.all([
         supabase.from("profiles").select("id, full_name").eq("team_id", teamId!).neq("id", profile!.id),
         supabase.from("seller_stock").select("seller_id, product_id, quantity"),

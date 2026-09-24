@@ -69,7 +69,7 @@ function MapaPage() {
     label: data.names.get(p.seller_id) ?? "Vendedor",
     lat: p.latitude,
     lng: p.longitude,
-    color: palette[i % palette.length],
+    color: palette[i % palette.length] ?? "#16a34a",
     time: `Visto às ${shortTime(p.recorded_at)}`,
   }));
 
