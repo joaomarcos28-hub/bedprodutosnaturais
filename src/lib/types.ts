@@ -3,8 +3,8 @@ export interface Product {
   barcode: string | null;
   name: string;
   category: string | null;
-  unit_cost: string;
-  sale_price: string;
+  unit_cost: number;
+  sale_price: number;
   central_stock: number;
   low_stock_threshold: number;
   created_at: string;
@@ -37,7 +37,7 @@ export interface Sale {
   seller_id: string;
   customer_name: string | null;
   payment_method: string;
-  total: string;
+  total: number;
   campaign_id: string | null;
   day_number: number | null;
   photo_url: string | null;
@@ -52,7 +52,7 @@ export interface SaleItem {
   sale_id: string;
   product_id: string | null;
   quantity: number;
-  unit_price: string;
+  unit_price: number;
 }
 
 export interface Movement {

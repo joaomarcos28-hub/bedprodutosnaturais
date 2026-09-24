@@ -26,7 +26,7 @@ function AuthenticatedLayout() {
   useEffect(() => {
     if (!uid) return;
     supabase
-      .rpc("ensure_profile", { p_full_name: session.user.user_metadata?.full_name ?? "" })
+      .rpc("ensure_profile", { p_full_name: (session.user.user_metadata?.["full_name"] as string) ?? "" })
       .then(() => {
         queryClient.invalidateQueries({ queryKey: ["my-profile", uid] });
         queryClient.invalidateQueries({ queryKey: ["my-role", uid] });

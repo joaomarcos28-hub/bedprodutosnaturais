@@ -1,8 +1,8 @@
-const brl = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" });
+const brlFormatter = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" });
 
 export function brl(value: string | number | null | undefined): string {
   const n = typeof value === "string" ? parseFloat(value) : value ?? 0;
-  return brl.format(n ?? 0);
+  return brlFormatter.format(n ?? 0);
 }
 
 export function formatDate(iso: string | null | undefined): string {

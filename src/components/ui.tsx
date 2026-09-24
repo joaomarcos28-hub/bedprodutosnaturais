@@ -85,7 +85,7 @@ export function CardContent({ className, ...props }: HTMLAttributes<HTMLDivEleme
   return <div className={cn("p-5 pt-2", className)} {...props} />;
 }
 
-export function Label({ className, ...props }: HTMLAttributes<HTMLLabelElement>) {
+export function Label({ className, ...props }: LabelHTMLAttributes<HTMLLabelElement>) {
   return <label className={cn("text-sm font-medium text-foreground", className)} {...props} />;
 }
 
