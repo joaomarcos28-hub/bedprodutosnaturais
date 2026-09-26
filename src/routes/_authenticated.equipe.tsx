@@ -9,8 +9,114 @@ import { Badge, Button, Card, CardContent, CardHeader, CardTitle, Input, Label, 
 import { Modal } from "@/components/Modal";
 import { QtyPicker } from "@/components/QtyPicker";
 import { toast } from "sonner";
-import { HandCoins, PackagePlus, UserPlus, Users } from "lucide-react";
+import { HandCoins, PackagePlus, Pencil, UserPlus, Users } from "lucide-react";
 import type { Product } from "@/lib/types";
+
+interface TeamRow { id: string; name: string; supervisor_id: string | null }
+interface ProfileRow { id: string; full_name: string; team_id: string | null; phone?: string | null }
+
+function EditTeamModal({
+  team, profiles, roles, teams, onClose, onSaved,
+}: {
+  team: TeamRow;
+  profiles: ProfileRow[];
+  roles: { user_id: string; role: string }[];
+  teams: TeamRow[];
+  onClose: () => void;
+  onSaved: () => void;
+}) {
+  const supervisorIds = new Set(roles.filter((r) => r.role === "supervisor").map((r) => r.user_id));
+  const supervisors = profiles.filter((p) => supervisorIds.has(p.id));
+  const [teamName, setTeamName] = useState(team.name);
+  const [supervisorId, setSupervisorId] = useState(team.supervisor_id ?? "");
+  const current = profiles.find((p) => p.id === supervisorId);
+  const [supName, setSupName] = useState(current?.full_name ?? "");
+  const members = profiles.filter((p) => p.team_id === team.id && p.id !== team.supervisor_id && !supervisorIds.has(p.id));
+  const [moves, setMoves] = useState<Record<string, string>>({});
+
+  const save = useMutation({
+    mutationFn: async () => {
+      if (!teamName.trim()) throw new Error("Informe o nome da equipe.");
+      const { error } = await supabase
+        .from("teams")
+        .update({ name: teamName.trim(), supervisor_id: supervisorId || null })
+        .eq("id", team.id);
+      if (error) throw error;
+      if (supervisorId) {
+        const upd: { team_id: string; full_name?: string } = { team_id: team.id };
+        if (supName.trim()) upd.full_name = supName.trim();
+        const { error: e2 } = await supabase.from("profiles").update(upd).eq("id", supervisorId);
+        if (e2) throw e2;
+      }
+      for (const [id, target] of Object.entries(moves)) {
+        if (target === team.id) continue;
+        const { error: e3 } = await supabase.from("profiles").update({ team_id: target || null }).eq("id", id);
+        if (e3) throw e3;
+      }
+    },
+    onSuccess: () => {
+      toast.success("Equipe atualizada!");
+      onSaved();
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  return (
+    <Modal open onClose={onClose} title={`Editar equipe — ${team.name}`}>
+      <form className="space-y-4" onSubmit={(e) => { e.preventDefault(); save.mutate(); }}>
+        <div className="space-y-1.5">
+          <Label>Nome da equipe</Label>
+          <Input value={teamName} onChange={(e) => setTeamName(e.target.value)} />
+        </div>
+        <div className="space-y-1.5">
+          <Label>Supervisor</Label>
+          <select
+            value={supervisorId}
+            onChange={(e) => {
+              setSupervisorId(e.target.value);
+              setSupName(profiles.find((p) => p.id === e.target.value)?.full_name ?? "");
+            }}
+            className="flex h-10 w-full rounded-lg border border-input bg-card px-3 py-2 text-sm shadow-sm"
+          >
+            <option value="">Sem supervisor</option>
+            {supervisors.map((s) => (
+              <option key={s.id} value={s.id}>{s.full_name}</option>
+            ))}
+          </select>
+        </div>
+        {supervisorId && (
+          <div className="space-y-1.5">
+            <Label>Nome do supervisor</Label>
+            <Input value={supName} onChange={(e) => setSupName(e.target.value)} />
+          </div>
+        )}
+        {members.length > 0 && (
+          <div className="space-y-2">
+            <Label>Vendedores</Label>
+            {members.map((m) => (
+              <div key={m.id} className="flex items-center justify-between gap-2 rounded-lg bg-secondary/50 px-3 py-2">
+                <span className="truncate text-sm">{m.full_name}</span>
+                <select
+                  value={moves[m.id] ?? team.id}
+                  onChange={(e) => setMoves({ ...moves, [m.id]: e.target.value })}
+                  className="h-9 rounded-lg border border-input bg-card px-2 text-sm"
+                >
+                  {teams.map((t) => (
+                    <option key={t.id} value={t.id}>{t.name}</option>
+                  ))}
+                  <option value="">Remover da equipe</option>
+                </select>
+              </div>
+            ))}
+          </div>
+        )}
+        <Button type="submit" className="w-full" disabled={save.isPending}>
+          {save.isPending ? "Salvando…" : "Salvar alterações"}
+        </Button>
+      </form>
+    </Modal>
+  );
+}
 
 export const Route = createFileRoute("/_authenticated/equipe")({
   head: () => ({
@@ -44,6 +150,7 @@ function OwnerTeams() {
   const [teamName, setTeamName] = useState("");
   const [teamId, setTeamId] = useState("");
   const [created, setCreated] = useState<{ email: string; password: string } | null>(null);
+  const [editTeam, setEditTeam] = useState<TeamRow | null>(null);
 
   const { data, isLoading } = useQuery({
     queryKey: ["teams-owner"],
@@ -114,10 +221,13 @@ function OwnerTeams() {
           const members = data.profiles.filter((p) => p.team_id === t.id && p.id !== t.supervisor_id);
           return (
             <Card key={t.id}>
-              <CardHeader>
+              <CardHeader className="flex flex-row items-center justify-between gap-2">
                 <CardTitle className="flex items-center gap-2">
                   <Users className="h-4 w-4 text-primary" /> {t.name}
                 </CardTitle>
+                <Button size="sm" variant="outline" onClick={() => setEditTeam(t)}>
+                  <Pencil className="h-4 w-4" /> Editar
+                </Button>
               </CardHeader>
               <CardContent className="space-y-2">
                 <p className="text-sm">
@@ -185,6 +295,20 @@ function OwnerTeams() {
           </Button>
         </form>
       </Modal>
+
+      {editTeam && (
+        <EditTeamModal
+          team={editTeam}
+          profiles={data.profiles}
+          roles={data.roles}
+          teams={data.teams}
+          onClose={() => setEditTeam(null)}
+          onSaved={() => {
+            setEditTeam(null);
+            queryClient.invalidateQueries({ queryKey: ["teams-owner"] });
+          }}
+        />
+      )}
 
       <Modal open={!!created} onClose={() => setCreated(null)} title="Conta criada!">
         {created && (
