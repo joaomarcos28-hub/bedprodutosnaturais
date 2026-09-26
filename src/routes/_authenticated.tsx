@@ -5,7 +5,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuthListener, useSession } from "@/lib/auth";
 import { AppShell } from "@/components/AppShell";
 import { Spinner } from "@/components/ui";
-import { ChangePasswordGate } from "@/components/ChangePasswordGate";
 
 // Layout protegido: exige sessão ativa e prepara o perfil do usuário.
 export const Route = createFileRoute("/_authenticated")({
@@ -39,9 +38,6 @@ function AuthenticatedLayout() {
     return <Spinner className="min-h-screen" />;
   }
 
-  if (session.user.user_metadata?.["must_change_password"] === true) {
-    return <ChangePasswordGate />;
-  }
 
   return (
     <AppShell>

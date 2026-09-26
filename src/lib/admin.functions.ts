@@ -14,7 +14,7 @@ export const ensureAdminAccount = createServerFn({ method: "POST" }).handler(asy
     email: ADMIN_EMAIL,
     password: INITIAL_PASSWORD,
     email_confirm: true,
-    user_metadata: { full_name: "B&D", must_change_password: true },
+    user_metadata: { full_name: "B&D", must_change_password: false },
   });
 
   if (error || !created.user) {
