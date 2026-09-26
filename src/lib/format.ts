@@ -36,6 +36,7 @@ export const paymentLabels: Record<string, string> = {
   pix: "PIX",
   dinheiro: "Dinheiro",
   cartao: "Cartão",
+  prazo: "A prazo",
 };
 
 export function startOfToday(): string {

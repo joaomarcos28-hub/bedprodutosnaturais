@@ -40,7 +40,7 @@ export function VenderPage() {
   const [tab, setTab] = useState<"estoque" | "venda">("estoque");
   const [items, setItems] = useState<{ productId: string; name: string; price: number; qty: number }[]>([]);
   const [customer, setCustomer] = useState("");
-  const [payment, setPayment] = useState<"pix" | "dinheiro" | "cartao">("pix");
+  const [payment, setPayment] = useState<"pix" | "dinheiro" | "prazo">("pix");
   const [shareLocation, setShareLocation] = useState(false);
   const [step, setStep] = useState<1 | 2>(1);
   const [photoFile, setPhotoFile] = useState<File | null>(null);
@@ -271,7 +271,7 @@ export function VenderPage() {
               <div className="space-y-1.5">
                 <Label>Forma de pagamento</Label>
                 <div className="grid grid-cols-3 gap-2">
-                  {(["pix", "dinheiro", "cartao"] as const).map((p) => (
+                  {(["pix", "dinheiro", "prazo"] as const).map((p) => (
                     <button
                       key={p}
                       type="button"
@@ -280,7 +280,7 @@ export function VenderPage() {
                         payment === p ? "border-primary bg-secondary text-secondary-foreground" : "border-border text-muted-foreground hover:bg-accent"
                       }`}
                     >
-                      {p === "pix" ? "PIX" : p === "dinheiro" ? "Dinheiro" : "Cartão"}
+                      {p === "pix" ? "PIX" : p === "dinheiro" ? "À vista (dinheiro)" : "A prazo"}
                     </button>
                   ))}
                 </div>
