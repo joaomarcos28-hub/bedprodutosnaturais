@@ -94,7 +94,7 @@ function OwnerDashboard() {
   return (
     <div className="space-y-6">
       <div>
-        <p className="text-sm font-medium text-primary">Olá, Administrador 👋</p>
+        <p className="text-sm font-medium text-primary">Olá, Administrador</p>
         <h1 className="font-display text-3xl font-semibold">Dashboard geral</h1>
         <p className="text-sm text-muted-foreground">Visão completa da operação</p>
       </div>
