@@ -29,7 +29,7 @@ export const Route = createFileRoute("/_authenticated/vender")({
 interface StockRow {
   product_id: string;
   quantity: number;
-  product: { id: string; name: string; sale_price: number } | null;
+  product: { id: string; name: string; sale_price: number; barcode: string | null } | null;
 }
 
 export function VenderPage() {
@@ -55,7 +55,7 @@ export function VenderPage() {
     queryFn: async (): Promise<StockRow[]> => {
       const { data, error } = await supabase
         .from("seller_stock")
-        .select("product_id, quantity, product:products!seller_stock_product_id_fkey(id, name, sale_price)")
+        .select("product_id, quantity, product:products!seller_stock_product_id_fkey(id, name, sale_price, barcode)")
         .eq("seller_id", uid!)
         .gt("quantity", 0)
         .order("updated_at", { ascending: false });
@@ -68,15 +68,21 @@ export function VenderPage() {
     mutationFn: async () => {
       if (!uid) throw new Error("Sessão não encontrada.");
       if (items.length === 0) throw new Error("Adicione ao menos um produto.");
+      if (!photoFile) throw new Error("Tire a foto da ficha antes de finalizar.");
+      if (!signature) throw new Error("Peça a assinatura do cliente antes de finalizar.");
 
       let latitude: number | null = null;
       let longitude: number | null = null;
       if (shareLocation) {
-        const pos = await new Promise<GeolocationPosition>((resolve, reject) =>
-          navigator.geolocation.getCurrentPosition(resolve, reject, { timeout: 10000, enableHighAccuracy: true }),
-        );
-        latitude = pos.coords.latitude;
-        longitude = pos.coords.longitude;
+        try {
+          const pos = await new Promise<GeolocationPosition>((resolve, reject) =>
+            navigator.geolocation.getCurrentPosition(resolve, reject, { timeout: 10000, enableHighAccuracy: true }),
+          );
+          latitude = pos.coords.latitude;
+          longitude = pos.coords.longitude;
+        } catch {
+          toast.warning("Não foi possível obter a localização. A venda será salva sem ela.");
+        }
       }
 
       let photoPath: string | null = null;
@@ -113,6 +119,9 @@ export function VenderPage() {
       if (sigPath) rpcArgs.p_signature = sigPath;
       const { data: saleId, error } = await supabase.rpc("register_sale", rpcArgs);
       if (error) throw error;
+      if (latitude != null && longitude != null) {
+        await supabase.from("location_pings").insert({ seller_id: uid, latitude, longitude });
+      }
       return saleId as string;
     },
     onSuccess: () => {
@@ -144,7 +153,7 @@ export function VenderPage() {
 
   function handleScanned(code: string) {
     setScanning(false);
-    const row = stock?.find((s) => s.product && (s.product as unknown as { barcode?: string }).barcode === code.trim());
+    const row = stock?.find((s) => s.product?.barcode === code.trim());
     if (row?.product) {
       addItem(row.product.id, row.product.name, Number(row.product.sale_price), row.quantity);
       toast.success("Produto adicionado: " + row.product.name);
@@ -321,7 +330,10 @@ export function VenderPage() {
                 }}
               />
               {photoPreview ? (
-                <img src={photoPreview} alt="Prévia da ficha" className="max-h-48 w-full rounded-xl border border-border object-cover" />
+                <button type="button" className="block w-full" onClick={() => photoInputRef.current?.click()} aria-label="Trocar foto">
+                  <img src={photoPreview} alt="Prévia da ficha" className="max-h-48 w-full rounded-xl border border-border object-cover" />
+                  <span className="mt-1 block text-xs text-muted-foreground">Toque para trocar a foto</span>
+                </button>
               ) : (
                 <Button variant="outline" className="w-full" onClick={() => photoInputRef.current?.click()}>
                   <Camera className="h-4 w-4" /> Tirar foto
@@ -339,10 +351,13 @@ export function VenderPage() {
               <span className="font-display text-xl font-bold">{brl(total)}</span>
             </div>
 
-            <Button className="w-full" size="lg" variant="success" disabled={finishSale.isPending} onClick={() => finishSale.mutate()}>
+            <Button className="w-full" size="lg" variant="success" disabled={finishSale.isPending || !photoFile || !signature} onClick={() => finishSale.mutate()}>
               <CheckCircle2 className="h-5 w-5" />
               {finishSale.isPending ? "Registrando…" : "Finalizar venda"}
             </Button>
+            {(!photoFile || !signature) && (
+              <p className="text-center text-xs text-muted-foreground">Falta: {[!photoFile && "foto da ficha", !signature && "assinatura"].filter(Boolean).join(" e ")}</p>
+            )}
             <Button variant="ghost" className="w-full" onClick={() => setStep(1)}>
               Voltar
             </Button>
