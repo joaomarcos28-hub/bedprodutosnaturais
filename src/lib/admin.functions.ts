@@ -19,7 +19,9 @@ export const ensureAdminAccount = createServerFn({ method: "POST" }).handler(asy
 
   if (error || !created.user) {
     // Já existe: nada a fazer.
-    return { ok: true };
+    if (error && /already|registered|exists/i.test(error.message)) return { ok: true };
+    console.error("ensureAdminAccount:", error);
+    return { ok: false, reason: error?.message ?? "unknown" };
   }
 
   const uid = created.user.id;
