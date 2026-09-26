@@ -121,6 +121,7 @@
   }
 
   body {
+    line-height: 1.55;
     background-color: var(--color-background);
     color: var(--color-foreground);
     font-family: var(--font-body);
@@ -133,7 +134,10 @@
     background-repeat: no-repeat, repeat;
   }
 
+  html { -webkit-tap-highlight-color: transparent; scroll-behavior: smooth; }
+  ::selection { background: color-mix(in oklab, var(--gold) 35%, transparent); }
   h1, h2, h3 {
+    line-height: 1.15;
     font-family: var(--font-heading);
     letter-spacing: -0.015em;
   }

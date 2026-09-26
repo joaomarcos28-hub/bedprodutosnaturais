@@ -69,11 +69,12 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               <Link
                 key={item.to}
                 to={item.to}
+                title={item.label}
                 className="flex items-center gap-1.5 rounded-xl px-3 py-2 text-sm font-medium text-muted-foreground transition-all hover:bg-accent hover:text-foreground"
                 activeProps={{ className: "bg-primary/10 text-primary hover:bg-primary/10" }}
               >
                 <item.icon className="h-4 w-4" />
-                {item.label}
+                <span className="hidden lg:inline">{item.label}</span>
               </Link>
             ))}
           </nav>
@@ -91,7 +92,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
       </header>
 
-      <main className="mx-auto max-w-6xl px-4 pb-28 pt-6 sm:px-6 md:pb-10 md:pt-8">{children}</main>
+      <main className="animate-in fade-in slide-in-from-bottom-1 duration-300 mx-auto max-w-6xl px-4 pb-28 pt-6 sm:px-6 md:pb-10 md:pt-8">{children}</main>
 
       <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-border/60 bg-card/90 pb-[env(safe-area-inset-bottom)] backdrop-blur-xl md:hidden">
         <div className="flex gap-1 overflow-x-auto px-2 py-1.5">
@@ -100,11 +101,11 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               key={item.to}
               to={item.to}
               className={cn(
-                "flex min-w-[4.25rem] flex-1 flex-col items-center gap-0.5 rounded-xl px-2 py-1.5 text-[11px] font-medium text-muted-foreground transition-colors",
+                "flex min-w-[4.25rem] flex-1 flex-col items-center gap-0.5 rounded-xl px-2 py-2 text-[11px] font-semibold text-muted-foreground transition-all active:scale-95",
               )}
               activeProps={{ className: "bg-primary/10 text-primary" }}
             >
-              <item.icon className="h-5 w-5" />
+              <item.icon className="h-5 w-5" strokeWidth={2.2} />
               <span className="whitespace-nowrap">{item.label}</span>
             </Link>
           ))}
