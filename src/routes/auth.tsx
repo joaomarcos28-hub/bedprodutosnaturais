@@ -70,12 +70,7 @@ function AuthPage() {
         <Card>
           <CardContent className="pt-5">
             <form onSubmit={handleSubmit} className="space-y-4">
-              {mode === "admin" ? (
-                <div className="space-y-1.5">
-                  <Label htmlFor="user">Usuário</Label>
-                  <Input id="user" value="B&D" readOnly disabled />
-                </div>
-              ) : (
+              {mode === "admin" ? null : (
                 <div className="space-y-1.5">
                   <Label htmlFor="email">E-mail</Label>
                   <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required placeholder="voce@exemplo.com" autoComplete="email" />
