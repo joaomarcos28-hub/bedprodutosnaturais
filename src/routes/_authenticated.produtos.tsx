@@ -4,11 +4,13 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useMyRole } from "@/lib/auth";
 import { brl } from "@/lib/format";
-import { Badge, Button, Card, CardContent, Input, Label, Select, Spinner } from "@/components/ui";
+import { Badge, Button, Card, CardContent, Input, Label, Select, Spinner, Textarea } from "@/components/ui";
+import { useServerFn } from "@tanstack/react-start";
+import { generateProductImage, getProductImageUrls } from "@/lib/product-images.functions";
 import { Modal } from "@/components/Modal";
 import { BarcodeScanner } from "@/components/BarcodeScanner";
 import { toast } from "sonner";
-import { Barcode, Minus, Pencil, Plus, ScanLine } from "lucide-react";
+import { Barcode, ImageIcon, Minus, Pencil, Plus, ScanLine, Sparkles } from "lucide-react";
 import type { Product } from "@/lib/types";
 
 export const Route = createFileRoute("/_authenticated/produtos")({
@@ -34,6 +36,8 @@ const emptyForm = {
   sale_price: "",
   central_stock: "0",
   low_stock_threshold: "10",
+  description: "",
+  image_url: "",
 };
 
 function ProdutosPage() {
@@ -50,6 +54,34 @@ function ProdutosPage() {
       if (error) throw error;
       return data;
     },
+  });
+
+  const genImage = useServerFn(generateProductImage);
+  const fetchUrls = useServerFn(getProductImageUrls);
+  const [preview, setPreview] = useState("");
+  const paths = (products ?? []).map((p) => p.image_url).filter((x): x is string => !!x);
+  const { data: imageUrls } = useQuery({
+    queryKey: ["product-image-urls", paths],
+    enabled: paths.length > 0,
+    staleTime: 1000 * 60 * 60,
+    queryFn: () => fetchUrls({ data: { paths } }),
+  });
+
+  const generate = useMutation({
+    mutationFn: () =>
+      genImage({
+        data: {
+          name: form.name,
+          ...(form.description.trim() ? { description: form.description } : {}),
+          ...(form.category.trim() ? { category: form.category } : {}),
+        },
+      }),
+    onSuccess: (r) => {
+      setForm((f) => ({ ...f, image_url: r.path }));
+      setPreview(r.url);
+      toast.success("Imagem gerada!");
+    },
+    onError: (e: Error) => toast.error(e.message),
   });
 
   const adjust = useMutation({
@@ -78,6 +110,8 @@ function ProdutosPage() {
         sale_price: Number(form.sale_price || "0"),
         central_stock: parseInt(form.central_stock || "0", 10),
         low_stock_threshold: parseInt(form.low_stock_threshold || "10", 10),
+        description: form.description.trim() || null,
+        image_url: form.image_url || null,
       };
       if (!payload.name) throw new Error("Informe o nome do produto.");
       if (form.id) {
@@ -107,6 +141,7 @@ function ProdutosPage() {
     } else {
       toast.info("Produto não cadastrado. Preencha os dados para cadastrar.");
       setForm({ ...emptyForm, barcode: clean });
+      setPreview("");
       setFormOpen(true);
     }
   }
@@ -121,7 +156,10 @@ function ProdutosPage() {
       sale_price: String(p.sale_price),
       central_stock: String(p.central_stock),
       low_stock_threshold: String(p.low_stock_threshold),
+      description: p.description ?? "",
+      image_url: p.image_url ?? "",
     });
+    setPreview(p.image_url ? (imageUrls?.[p.image_url] ?? "") : "");
     setFormOpen(true);
   }
 
@@ -144,6 +182,7 @@ function ProdutosPage() {
           <Button
             onClick={() => {
               setForm(emptyForm);
+              setPreview("");
               setFormOpen(true);
             }}
           >
@@ -159,7 +198,14 @@ function ProdutosPage() {
           const low = p.central_stock <= p.low_stock_threshold;
           return (
             <Card key={p.id}>
-              <CardContent className="flex flex-wrap items-center gap-3 p-4">
+              <CardContent className="flex flex-wrap items-center gap-4 p-4">
+                <div className="grid h-16 w-16 shrink-0 place-items-center overflow-hidden rounded-xl bg-muted">
+                  {p.image_url && imageUrls?.[p.image_url] ? (
+                    <img src={imageUrls[p.image_url]} alt={p.name} className="h-full w-full object-cover" loading="lazy" />
+                  ) : (
+                    <ImageIcon className="h-6 w-6 text-muted-foreground" />
+                  )}
+                </div>
                 <div className="min-w-0 flex-1">
                   <div className="flex flex-wrap items-center gap-2">
                     <p className="font-medium">{p.name}</p>
@@ -234,6 +280,25 @@ function ProdutosPage() {
             <div className="space-y-1.5">
               <Label htmlFor="p-price">Preço de venda</Label>
               <Input id="p-price" type="number" step="0.01" min="0" value={form.sale_price} onChange={(e) => setForm({ ...form, sale_price: e.target.value })} placeholder="89,90" />
+            </div>
+            <div className="col-span-2 space-y-1.5">
+              <Label htmlFor="p-desc">Descrição</Label>
+              <Textarea id="p-desc" rows={2} value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} placeholder="Mel puro de flores silvestres, 500g" />
+            </div>
+            <div className="col-span-2 space-y-2 rounded-2xl border border-dashed border-border bg-muted/40 p-3">
+              <div className="flex items-center justify-between gap-2">
+                <p className="text-sm font-medium">Foto do produto (IA)</p>
+                <Button type="button" size="sm" variant="outline" disabled={generate.isPending || form.name.trim().length < 2} onClick={() => generate.mutate()}>
+                  <Sparkles className="h-4 w-4" /> {generate.isPending ? "Gerando…" : preview ? "Gerar outra" : "Gerar imagem"}
+                </Button>
+              </div>
+              {generate.isPending ? (
+                <div className="aspect-square w-full animate-pulse rounded-xl bg-muted" />
+              ) : preview ? (
+                <img src={preview} alt="Imagem gerada do produto" className="aspect-square w-full rounded-xl object-cover" />
+              ) : (
+                <p className="text-xs text-muted-foreground">Preencha o nome (e a descrição, se quiser) e toque em "Gerar imagem".</p>
+              )}
             </div>
             {!form.id && (
               <div className="col-span-2 space-y-1.5">
