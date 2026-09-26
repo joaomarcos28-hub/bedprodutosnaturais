@@ -1,5 +1,5 @@
 import { Link, useRouter } from "@tanstack/react-router";
-import { Leaf, LogOut } from "lucide-react";
+import { Leaf, LogOut, LayoutDashboard, Package, Users, Receipt, Flag, MapPin, History, Sparkles, ShoppingBag, type LucideIcon } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "./ui";
 import { useMyProfile, useMyRole, useSession, type AppRole } from "@/lib/auth";
@@ -12,28 +12,28 @@ const roleLabels: Record<AppRole, string> = {
   seller: "Vendedor",
 };
 
-const navByRole: Record<AppRole, { to: string; label: string }[]> = {
+const navByRole: Record<AppRole, { to: string; label: string; icon: LucideIcon }[]> = {
   owner: [
-    { to: "/dashboard", label: "Painel" },
-    { to: "/produtos", label: "Produtos" },
-    { to: "/equipe", label: "Equipes" },
-    { to: "/vendas", label: "Vendas" },
-    { to: "/campanhas", label: "Campanhas" },
-    { to: "/mapa", label: "Mapa" },
-    { to: "/historico", label: "Histórico" },
-    { to: "/diagnostico", label: "Diagnóstico" },
+    { to: "/dashboard", label: "Painel", icon: LayoutDashboard },
+    { to: "/produtos", label: "Produtos", icon: Package },
+    { to: "/equipe", label: "Equipes", icon: Users },
+    { to: "/vendas", label: "Vendas", icon: Receipt },
+    { to: "/campanhas", label: "Campanhas", icon: Flag },
+    { to: "/mapa", label: "Mapa", icon: MapPin },
+    { to: "/historico", label: "Histórico", icon: History },
+    { to: "/diagnostico", label: "Diagnóstico", icon: Sparkles },
   ],
   supervisor: [
-    { to: "/dashboard", label: "Painel" },
-    { to: "/equipe", label: "Minha equipe" },
-    { to: "/vendas", label: "Vendas" },
-    { to: "/campanhas", label: "Campanhas" },
-    { to: "/mapa", label: "Mapa" },
+    { to: "/dashboard", label: "Painel", icon: LayoutDashboard },
+    { to: "/equipe", label: "Minha equipe", icon: Users },
+    { to: "/vendas", label: "Vendas", icon: Receipt },
+    { to: "/campanhas", label: "Campanhas", icon: Flag },
+    { to: "/mapa", label: "Mapa", icon: MapPin },
   ],
   seller: [
-    { to: "/dashboard", label: "Painel" },
-    { to: "/vender", label: "Vender" },
-    { to: "/vendas", label: "Minhas vendas" },
+    { to: "/dashboard", label: "Painel", icon: LayoutDashboard },
+    { to: "/vender", label: "Vender", icon: ShoppingBag },
+    { to: "/vendas", label: "Minhas vendas", icon: Receipt },
   ],
 };
 
@@ -53,10 +53,10 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="min-h-screen bg-background">
-      <header className="sticky top-0 z-40 border-b border-border bg-card/90 backdrop-blur">
+      <header className="sticky top-0 z-40 border-b border-border/60 bg-card/75 backdrop-blur-xl">
         <div className="mx-auto flex max-w-6xl items-center gap-3 px-4 py-3">
           <Link to="/dashboard" className="flex items-center gap-2">
-            <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary text-primary-foreground">
+            <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-primary text-primary-foreground shadow-soft">
               <Leaf className="h-5 w-5" />
             </span>
             <span className="font-display text-lg font-semibold tracking-tight">
@@ -69,9 +69,10 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               <Link
                 key={item.to}
                 to={item.to}
-                className="rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
-                activeProps={{ className: "bg-secondary text-secondary-foreground hover:bg-secondary" }}
+                className="flex items-center gap-1.5 rounded-xl px-3 py-2 text-sm font-medium text-muted-foreground transition-all hover:bg-accent hover:text-foreground"
+                activeProps={{ className: "bg-primary/10 text-primary hover:bg-primary/10" }}
               >
+                <item.icon className="h-4 w-4" />
                 {item.label}
               </Link>
             ))}
@@ -88,23 +89,27 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           </div>
         </div>
 
-        <nav className="flex gap-1 overflow-x-auto px-3 pb-2 md:hidden">
+      </header>
+
+      <main className="mx-auto max-w-6xl px-4 pb-28 pt-6 sm:px-6 md:pb-10 md:pt-8">{children}</main>
+
+      <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-border/60 bg-card/90 pb-[env(safe-area-inset-bottom)] backdrop-blur-xl md:hidden">
+        <div className="flex gap-1 overflow-x-auto px-2 py-1.5">
           {nav.map((item) => (
             <Link
               key={item.to}
               to={item.to}
               className={cn(
-                "whitespace-nowrap rounded-lg px-3 py-1.5 text-sm font-medium text-muted-foreground hover:bg-accent",
+                "flex min-w-[4.25rem] flex-1 flex-col items-center gap-0.5 rounded-xl px-2 py-1.5 text-[11px] font-medium text-muted-foreground transition-colors",
               )}
-              activeProps={{ className: "bg-secondary text-secondary-foreground" }}
+              activeProps={{ className: "bg-primary/10 text-primary" }}
             >
-              {item.label}
+              <item.icon className="h-5 w-5" />
+              <span className="whitespace-nowrap">{item.label}</span>
             </Link>
           ))}
-        </nav>
-      </header>
-
-      <main className="mx-auto max-w-6xl px-4 py-6">{children}</main>
+        </div>
+      </nav>
     </div>
   );
 }
