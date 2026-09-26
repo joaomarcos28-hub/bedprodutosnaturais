@@ -120,7 +120,7 @@ export function VenderPage() {
       const { data: saleId, error } = await supabase.rpc("register_sale", rpcArgs);
       if (error) throw error;
       if (latitude != null && longitude != null) {
-        await supabase.from("location_pings").insert({ seller_id: uid, lat: latitude, lng: longitude });
+        await supabase.from("location_pings").insert({ seller_id: uid, latitude, longitude });
       }
       return saleId as string;
     },
