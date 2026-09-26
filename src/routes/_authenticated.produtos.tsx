@@ -16,9 +16,9 @@ import type { Product } from "@/lib/types";
 export const Route = createFileRoute("/_authenticated/produtos")({
   head: () => ({
     meta: [
-      { title: "Produtos e Estoque — BeD Produtos Naturais" },
+      { title: "Produtos e Estoque — B&D Produtos Naturais" },
       { name: "description", content: "Cadastro de produtos, estoque central e leitura de código de barras." },
-      { property: "og:title", content: "Produtos e Estoque — BeD Produtos Naturais" },
+      { property: "og:title", content: "Produtos e Estoque — B&D Produtos Naturais" },
       { property: "og:description", content: "Cadastro de produtos, estoque central e leitura de código de barras." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },

@@ -9,9 +9,9 @@ import type { Movement } from "@/lib/types";
 export const Route = createFileRoute("/_authenticated/historico")({
   head: () => ({
     meta: [
-      { title: "Histórico — BeD Produtos Naturais" },
+      { title: "Histórico — B&D Produtos Naturais" },
       { name: "description", content: "Histórico de todas as movimentações de estoque e vendas." },
-      { property: "og:title", content: "Histórico — BeD Produtos Naturais" },
+      { property: "og:title", content: "Histórico — B&D Produtos Naturais" },
       { property: "og:description", content: "Histórico de todas as movimentações de estoque e vendas." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },

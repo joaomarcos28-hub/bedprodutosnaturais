@@ -10,9 +10,9 @@ import type { Sale } from "@/lib/types";
 export const Route = createFileRoute("/_authenticated/vendas")({
   head: () => ({
     meta: [
-      { title: "Vendas — BeD Produtos Naturais" },
+      { title: "Vendas — B&D Produtos Naturais" },
       { name: "description", content: "Registro de vendas da equipe porta a porta." },
-      { property: "og:title", content: "Vendas — BeD Produtos Naturais" },
+      { property: "og:title", content: "Vendas — B&D Produtos Naturais" },
       { property: "og:description", content: "Registro de vendas da equipe porta a porta." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },

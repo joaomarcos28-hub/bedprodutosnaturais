@@ -60,7 +60,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               <Leaf className="h-5 w-5" />
             </span>
             <span className="font-display whitespace-nowrap text-lg font-semibold tracking-tight">
-              BeD <span className="hidden 2xl:inline whitespace-nowrap text-muted-foreground font-sans text-sm font-medium">Produtos Naturais</span>
+              B&amp;D <span className="hidden 2xl:inline whitespace-nowrap text-muted-foreground font-sans text-sm font-medium">Produtos Naturais</span>
             </span>
           </Link>
 

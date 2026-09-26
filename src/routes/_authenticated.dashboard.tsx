@@ -9,10 +9,10 @@ import { AlertTriangle, ArrowLeftRight, Boxes, Coins, HandCoins, MapPin, Package
 export const Route = createFileRoute("/_authenticated/dashboard")({
   head: () => ({
     meta: [
-      { title: "Painel — BeD Produtos Naturais" },
-      { name: "description", content: "Visão geral do estoque e das vendas da BeD Produtos Naturais." },
-      { property: "og:title", content: "Painel — BeD Produtos Naturais" },
-      { property: "og:description", content: "Visão geral do estoque e das vendas da BeD Produtos Naturais." },
+      { title: "Painel — B&D Produtos Naturais" },
+      { name: "description", content: "Visão geral do estoque e das vendas da B&D Produtos Naturais." },
+      { property: "og:title", content: "Painel — B&D Produtos Naturais" },
+      { property: "og:description", content: "Visão geral do estoque e das vendas da B&D Produtos Naturais." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
