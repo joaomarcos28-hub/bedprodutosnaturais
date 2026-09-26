@@ -29,6 +29,13 @@
       "when": 1790450450505,
       "tag": "0003_desativar_usuarios_encerrar_campanhas",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1790450840344,
+      "tag": "0004_venda_registrada_pelo_supervisor",
+      "breakpoints": true
     }
   ]
 }

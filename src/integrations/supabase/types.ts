@@ -275,6 +275,7 @@ export type Database = {
           longitude: number | null
           payment_method: string
           photo_url: string | null
+          registered_by: string | null
           seller_id: string
           signature_url: string | null
           total: number
@@ -289,6 +290,7 @@ export type Database = {
           longitude?: number | null
           payment_method?: string
           photo_url?: string | null
+          registered_by?: string | null
           seller_id: string
           signature_url?: string | null
           total?: number
@@ -303,6 +305,7 @@ export type Database = {
           longitude?: number | null
           payment_method?: string
           photo_url?: string | null
+          registered_by?: string | null
           seller_id?: string
           signature_url?: string | null
           total?: number
@@ -444,6 +447,16 @@ export type Database = {
           p_payment?: string
           p_photo?: string
           p_signature?: string
+        }
+        Returns: string
+      }
+      register_sale_for_seller: {
+        Args: {
+          p_customer?: string
+          p_payment: string
+          p_photo?: string
+          p_seller_id: string
+          p_total: number
         }
         Returns: string
       }
