@@ -15,9 +15,9 @@ export function ChangePasswordGate() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (next.length < 8) return toast.error("A nova senha precisa ter pelo menos 8 caracteres.");
-    if (next !== confirm) return toast.error("As senhas não conferem.");
-    if (next === current) return toast.error("A nova senha deve ser diferente da atual.");
+    if (next.length < 8) { toast.error("A nova senha precisa ter pelo menos 8 caracteres."); return; }
+    if (next !== confirm) { toast.error("As senhas não conferem."); return; }
+    if (next === current) { toast.error("A nova senha deve ser diferente da atual."); return; }
     setBusy(true);
     const { error } = await supabase.auth.updateUser({
       password: next,
@@ -25,7 +25,7 @@ export function ChangePasswordGate() {
       data: { must_change_password: false },
     } as Parameters<typeof supabase.auth.updateUser>[0]);
     setBusy(false);
-    if (error) return toast.error("Não foi possível trocar a senha: " + error.message);
+    if (error) { toast.error("Não foi possível trocar a senha: " + error.message); return; }
     await supabase.auth.refreshSession();
     await queryClient.invalidateQueries({ queryKey: ["session"] });
     toast.success("Senha alterada com sucesso!");
