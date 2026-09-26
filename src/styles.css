@@ -150,3 +150,7 @@
 @utility bg-gradient-primary {
   background-image: var(--gradient-primary);
 }
+
+#lovable-badge {
+  display: none !important;
+}
