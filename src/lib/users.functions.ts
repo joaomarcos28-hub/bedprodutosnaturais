@@ -8,6 +8,7 @@ const inputSchema = z.object({
   role: z.enum(["supervisor", "seller"]),
   teamName: z.string().optional(),
   teamId: z.string().uuid().optional(),
+  password: z.string().min(8, "A senha precisa ter pelo menos 8 caracteres").max(72),
 });
 
 /**
@@ -27,7 +28,7 @@ export const createTeamUser = createServerFn({ method: "POST" })
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
-    const tempPassword = `Bed${Math.random().toString(36).slice(2, 8)}7x`;
+    const tempPassword = data.password;
 
     const { data: created, error } = await supabaseAdmin.auth.admin.createUser({
       email: data.email,
@@ -102,4 +103,29 @@ export const stopTeam = createServerFn({ method: "POST" })
         .eq("id", c.id);
     }
     return { closed: camps.length };
+  });
+
+/** Dono exclui uma equipe inteira: supervisor e vendedores perdem o acesso. Histórico mantido. */
+export const deleteTeam = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data) => z.object({ teamId: z.string().uuid() }).parse(data))
+  .handler(async ({ data, context }) => {
+    await assertOwner(context);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: team } = await supabaseAdmin.from("teams").select("supervisor_id").eq("id", data.teamId).single();
+    const { data: members } = await supabaseAdmin.from("profiles").select("id").eq("team_id", data.teamId);
+    const ids = new Set((members ?? []).map((m) => m.id));
+    if (team?.supervisor_id) ids.add(team.supervisor_id);
+    ids.delete(context.userId);
+    for (const id of ids) {
+      const { data: roles } = await supabaseAdmin.from("user_roles").select("role").eq("user_id", id);
+      if ((roles ?? []).some((r) => r.role === "owner")) continue;
+      await supabaseAdmin.from("user_roles").delete().eq("user_id", id);
+      await supabaseAdmin.from("profiles").update({ active: false, team_id: null }).eq("id", id);
+      await supabaseAdmin.auth.admin.updateUserById(id, { ban_duration: "876000h" });
+    }
+    await supabaseAdmin.from("profiles").update({ team_id: null }).eq("team_id", data.teamId);
+    const { error } = await supabaseAdmin.from("teams").delete().eq("id", data.teamId);
+    if (error) throw new Error("Não foi possível excluir a equipe.");
+    return { ok: true };
   });

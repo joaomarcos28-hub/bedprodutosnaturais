@@ -2,14 +2,14 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { createTeamUser, removeTeamUser, stopTeam } from "@/lib/users.functions";
+import { createTeamUser, deleteTeam, removeTeamUser, stopTeam } from "@/lib/users.functions";
 import { useMyRole, useMyProfile, useMyTeam } from "@/lib/auth";
 import { brl, startOfToday } from "@/lib/format";
 import { Badge, Button, Card, CardContent, CardHeader, CardTitle, Input, Label, Spinner } from "@/components/ui";
 import { Modal } from "@/components/Modal";
 import { QtyPicker } from "@/components/QtyPicker";
 import { toast } from "sonner";
-import { HandCoins, PackagePlus, Pencil, Square, Trash2, UserPlus, Users, X } from "lucide-react";
+import { Camera, HandCoins, PackagePlus, Receipt, Pencil, Square, Trash2, UserPlus, Users, X } from "lucide-react";
 import type { Product } from "@/lib/types";
 
 interface TeamRow { id: string; name: string; supervisor_id: string | null }
@@ -149,6 +149,7 @@ function OwnerTeams() {
   const [email, setEmail] = useState("");
   const [teamName, setTeamName] = useState("");
   const [teamId, setTeamId] = useState("");
+  const [password, setPassword] = useState("");
   const [created, setCreated] = useState<{ email: string; password: string } | null>(null);
   const [editTeam, setEditTeam] = useState<TeamRow | null>(null);
 
@@ -177,6 +178,15 @@ function OwnerTeams() {
     if (confirm(`Excluir o ${tipo} ${nome}? Ele não poderá mais entrar no app. As vendas e o histórico ficam salvos.`)) remove.mutate(id);
   };
 
+  const delTeam = useMutation({
+    mutationFn: (id: string) => deleteTeam({ data: { teamId: id } }),
+    onSuccess: () => {
+      toast.success("Equipe excluída. O histórico foi mantido.");
+      queryClient.invalidateQueries({ queryKey: ["teams-owner"] });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
   const stop = useMutation({
     mutationFn: (teamId: string) => stopTeam({ data: { teamId } }),
     onSuccess: () => toast.success("Equipe parada. Campanha encerrada e histórico salvo."),
@@ -187,10 +197,10 @@ function OwnerTeams() {
     mutationFn: async () => {
       if (modal === "supervisor") {
         if (!name.trim() || !email.trim() || !teamName.trim()) throw new Error("Preencha nome, e-mail e nome da equipe.");
-        return createTeamUser({ data: { fullName: name, email, role: "supervisor", teamName } });
+        return createTeamUser({ data: { fullName: name, email, role: "supervisor", teamName, password } });
       }
       if (!name.trim() || !email.trim() || !teamId) throw new Error("Preencha nome, e-mail e escolha a equipe.");
-      return createTeamUser({ data: { fullName: name, email, role: "seller", teamId } });
+      return createTeamUser({ data: { fullName: name, email, role: "seller", teamId, password } });
     },
     onSuccess: (res) => {
       setCreated({ email, password: res.tempPassword });
@@ -199,6 +209,7 @@ function OwnerTeams() {
       setEmail("");
       setTeamName("");
       setTeamId("");
+      setPassword("");
       queryClient.invalidateQueries({ queryKey: ["teams-owner"] });
     },
     onError: (e: Error) => toast.error(e.message),
@@ -257,6 +268,17 @@ function OwnerTeams() {
                   >
                     <Square className="h-4 w-4" /> Parar equipe
                   </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="text-destructive"
+                    disabled={delTeam.isPending}
+                    onClick={() => {
+                      if (confirm(`Excluir a equipe "${t.name}"? O supervisor e os vendedores dela perdem o acesso. As vendas e o histórico ficam salvos.`)) delTeam.mutate(t.id);
+                    }}
+                  >
+                    <Trash2 className="h-4 w-4" /> Excluir equipe
+                  </Button>
                 </div>
               </CardHeader>
               <CardContent className="space-y-2">
@@ -307,6 +329,7 @@ function OwnerTeams() {
         >
           <Field label="Nome" value={name} onChange={setName} placeholder="Carlos Souza" />
           <Field label="E-mail" value={email} onChange={setEmail} placeholder="carlos@bed.com.br" type="email" />
+          <Field label="Senha de acesso" value={password} onChange={setPassword} placeholder="Mínimo 8 caracteres" />
           <Field label="Nome da equipe" value={teamName} onChange={setTeamName} placeholder="Equipe União" />
           <Button type="submit" className="w-full" disabled={createUser.isPending}>
             {createUser.isPending ? "Criando…" : "Cadastrar supervisor"}
@@ -324,6 +347,7 @@ function OwnerTeams() {
         >
           <Field label="Nome" value={name} onChange={setName} placeholder="Carlos Souza" />
           <Field label="E-mail" value={email} onChange={setEmail} placeholder="carlos@bed.com.br" type="email" />
+          <Field label="Senha de acesso" value={password} onChange={setPassword} placeholder="Mínimo 8 caracteres" />
           <div className="space-y-1.5">
             <Label htmlFor="team">Equipe</Label>
             <select
@@ -369,10 +393,10 @@ function OwnerTeams() {
                 <strong>E-mail:</strong> {created.email}
               </p>
               <p>
-                <strong>Senha inicial:</strong> {created.password}
+                <strong>Senha:</strong> {created.password}
               </p>
             </div>
-            <p className="text-xs text-muted-foreground">Essa senha aparece só uma vez. A pessoa pode trocá-la depois.</p>
+            <p className="text-xs text-muted-foreground">Guarde esses dados: a senha não aparece de novo.</p>
             <Button className="w-full" onClick={() => setCreated(null)}>
               Entendi
             </Button>
@@ -425,6 +449,43 @@ function SupervisorTeam() {
       return { members: members.data!, stock: stock.data!, products: products.data as Product[], salesToday: salesToday.data! };
     },
     refetchInterval: 20_000,
+  });
+
+  const [saleFor, setSaleFor] = useState<{ id: string; name: string } | null>(null);
+  const [saleTotal, setSaleTotal] = useState("");
+  const [salePay, setSalePay] = useState<"pix" | "dinheiro" | "prazo">("pix");
+  const [salePhoto, setSalePhoto] = useState<File | null>(null);
+  const [saleCustomer, setSaleCustomer] = useState("");
+
+  const registerSale = useMutation({
+    mutationFn: async () => {
+      if (!saleFor) return;
+      const total = Number(saleTotal.replace(/\./g, "").replace(",", "."));
+      if (!total || total <= 0) throw new Error("Informe o valor vendido.");
+      let photoPath: string | undefined;
+      if (salePhoto) {
+        photoPath = `${saleFor.id}/nota-${Date.now()}.jpg`;
+        const { error: upErr } = await supabase.storage.from("receipts").upload(photoPath, salePhoto, { contentType: salePhoto.type || "image/jpeg" });
+        if (upErr) throw new Error("Falha ao enviar a foto da nota.");
+      }
+      const args: { p_seller_id: string; p_total: number; p_payment: string; p_photo?: string; p_customer?: string } = {
+        p_seller_id: saleFor.id, p_total: total, p_payment: salePay,
+      };
+      if (photoPath) args.p_photo = photoPath;
+      if (saleCustomer.trim()) args.p_customer = saleCustomer.trim();
+      const { error } = await supabase.rpc("register_sale_for_seller", args);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast.success("Venda registrada!");
+      setSaleFor(null);
+      setSaleTotal("");
+      setSalePhoto(null);
+      setSaleCustomer("");
+      setSalePay("pix");
+      queryClient.invalidateQueries({ queryKey: ["team-supervisor"] });
+    },
+    onError: (e: Error) => toast.error(e.message),
   });
 
   const deliver = useMutation({
@@ -483,6 +544,10 @@ function SupervisorTeam() {
                     {units} un. com ele · vendas hoje {brl(vendas)}
                   </p>
                 </div>
+                <div className="flex flex-wrap justify-end gap-2">
+                <Button size="sm" variant="outline" onClick={() => setSaleFor({ id: m.id, name: m.full_name })}>
+                  <Receipt className="h-4 w-4" /> Registrar venda
+                </Button>
                 <Button
                   size="sm"
                   onClick={() => {
@@ -492,6 +557,7 @@ function SupervisorTeam() {
                 >
                   <PackagePlus className="h-4 w-4" /> Entregar estoque
                 </Button>
+                </div>
               </CardContent>
             </Card>
           );
@@ -504,6 +570,45 @@ function SupervisorTeam() {
           </Card>
         )}
       </div>
+
+      <Modal open={!!saleFor} onClose={() => setSaleFor(null)} title={`Registrar venda — ${saleFor?.name ?? ""}`}>
+        <form className="space-y-4" onSubmit={(e) => { e.preventDefault(); registerSale.mutate(); }}>
+          <div className="space-y-1.5">
+            <Label>Valor vendido (R$)</Label>
+            <Input inputMode="decimal" value={saleTotal} onChange={(e) => setSaleTotal(e.target.value)} placeholder="150,00" />
+          </div>
+          <div className="space-y-1.5">
+            <Label>Forma de pagamento</Label>
+            <div className="grid grid-cols-3 gap-2">
+              {(["pix", "dinheiro", "prazo"] as const).map((p) => (
+                <button
+                  key={p}
+                  type="button"
+                  onClick={() => setSalePay(p)}
+                  className={`rounded-lg border px-2 py-2.5 text-sm font-medium ${salePay === p ? "border-primary bg-secondary text-secondary-foreground" : "border-border text-muted-foreground"}`}
+                >
+                  {p === "pix" ? "PIX" : p === "dinheiro" ? "À vista (dinheiro)" : "A prazo"}
+                </button>
+              ))}
+            </div>
+          </div>
+          <div className="space-y-1.5">
+            <Label>Cliente (opcional)</Label>
+            <Input value={saleCustomer} onChange={(e) => setSaleCustomer(e.target.value)} placeholder="Maria" />
+          </div>
+          <div className="space-y-1.5">
+            <Label>Foto da nota</Label>
+            <label className="flex cursor-pointer items-center gap-2 rounded-lg border border-dashed border-border px-3 py-3 text-sm text-muted-foreground">
+              <Camera className="h-4 w-4" />
+              {salePhoto ? salePhoto.name : "Tirar ou escolher foto"}
+              <input type="file" accept="image/*" capture="environment" className="hidden" onChange={(e) => setSalePhoto(e.target.files?.[0] ?? null)} />
+            </label>
+          </div>
+          <Button type="submit" className="w-full" disabled={registerSale.isPending}>
+            {registerSale.isPending ? "Salvando…" : "Salvar venda"}
+          </Button>
+        </form>
+      </Modal>
 
       <Modal open={!!deliverFor} onClose={() => setDeliverFor(null)} title={`Saída de estoque — ${deliverFor?.name ?? ""}`}>
         <div className="space-y-3">
