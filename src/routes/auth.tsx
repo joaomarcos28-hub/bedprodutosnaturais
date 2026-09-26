@@ -59,7 +59,7 @@ function AuthPage() {
 
   return (
     <div
-      className="relative flex min-h-screen items-end justify-center bg-background bg-cover bg-center px-4 pb-8 sm:items-center sm:pb-0 lg:justify-end lg:pr-[8vw]"
+      className="relative flex min-h-screen items-end justify-center bg-background bg-cover bg-center bg-no-repeat px-4 pb-8 lg:bg-[length:auto_100%] lg:bg-left sm:items-center sm:pb-0 lg:justify-end lg:pr-[8vw]"
       style={{ backgroundImage: `url(${bgAsset.url})` }}
     >
       <div className="relative w-full max-w-md rounded-3xl bg-card/80 p-6 shadow-elegant backdrop-blur-md">
