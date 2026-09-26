@@ -21,6 +21,7 @@ const navByRole: Record<AppRole, { to: string; label: string }[]> = {
     { to: "/campanhas", label: "Campanhas" },
     { to: "/mapa", label: "Mapa" },
     { to: "/historico", label: "Histórico" },
+    { to: "/diagnostico", label: "Diagnóstico" },
   ],
   supervisor: [
     { to: "/dashboard", label: "Painel" },
