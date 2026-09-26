@@ -2,14 +2,14 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { createTeamUser } from "@/lib/users.functions";
+import { createTeamUser, removeTeamUser, stopTeam } from "@/lib/users.functions";
 import { useMyRole, useMyProfile, useMyTeam } from "@/lib/auth";
 import { brl, startOfToday } from "@/lib/format";
 import { Badge, Button, Card, CardContent, CardHeader, CardTitle, Input, Label, Spinner } from "@/components/ui";
 import { Modal } from "@/components/Modal";
 import { QtyPicker } from "@/components/QtyPicker";
 import { toast } from "sonner";
-import { HandCoins, PackagePlus, Pencil, UserPlus, Users } from "lucide-react";
+import { HandCoins, PackagePlus, Pencil, Square, Trash2, UserPlus, Users, X } from "lucide-react";
 import type { Product } from "@/lib/types";
 
 interface TeamRow { id: string; name: string; supervisor_id: string | null }
@@ -157,12 +157,30 @@ function OwnerTeams() {
     queryFn: async () => {
       const [teams, profiles, roles] = await Promise.all([
         supabase.from("teams").select("*").order("name"),
-        supabase.from("profiles").select("id, full_name, team_id"),
+        supabase.from("profiles").select("id, full_name, team_id").eq("active", true),
         supabase.from("user_roles").select("user_id, role"),
       ]);
       if (teams.error || profiles.error || roles.error) throw new Error("Falha ao carregar equipes.");
       return { teams: teams.data!, profiles: profiles.data!, roles: roles.data! };
     },
+  });
+
+  const remove = useMutation({
+    mutationFn: (userId: string) => removeTeamUser({ data: { userId } }),
+    onSuccess: () => {
+      toast.success("Excluído. O histórico foi mantido.");
+      queryClient.invalidateQueries({ queryKey: ["teams-owner"] });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+  const askRemove = (id: string, nome: string, tipo: string) => {
+    if (confirm(`Excluir o ${tipo} ${nome}? Ele não poderá mais entrar no app. As vendas e o histórico ficam salvos.`)) remove.mutate(id);
+  };
+
+  const stop = useMutation({
+    mutationFn: (teamId: string) => stopTeam({ data: { teamId } }),
+    onSuccess: () => toast.success("Equipe parada. Campanha encerrada e histórico salvo."),
+    onError: (e: Error) => toast.error(e.message),
   });
 
   const createUser = useMutation({
@@ -225,19 +243,51 @@ function OwnerTeams() {
                 <CardTitle className="flex items-center gap-2">
                   <Users className="h-4 w-4 text-primary" /> {t.name}
                 </CardTitle>
-                <Button size="sm" variant="outline" onClick={() => setEditTeam(t)}>
-                  <Pencil className="h-4 w-4" /> Editar
-                </Button>
+                <div className="flex gap-2">
+                  <Button size="sm" variant="outline" onClick={() => setEditTeam(t)}>
+                    <Pencil className="h-4 w-4" /> Editar
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    disabled={stop.isPending}
+                    onClick={() => {
+                      if (confirm(`Parar a equipe "${t.name}"? A campanha atual será encerrada e todo o histórico fica salvo.`)) stop.mutate(t.id);
+                    }}
+                  >
+                    <Square className="h-4 w-4" /> Parar equipe
+                  </Button>
+                </div>
               </CardHeader>
               <CardContent className="space-y-2">
-                <p className="text-sm">
-                  Supervisor: <strong>{supervisor?.full_name ?? "—"}</strong>
-                </p>
+                <div className="flex items-center justify-between gap-2 text-sm">
+                  <span>
+                    Supervisor: <strong>{supervisor?.full_name ?? "—"}</strong>
+                  </span>
+                  {supervisor && (
+                    <button
+                      type="button"
+                      aria-label={`Excluir ${supervisor.full_name}`}
+                      className="rounded-md p-1.5 text-destructive hover:bg-destructive/10"
+                      onClick={() => askRemove(supervisor.id, supervisor.full_name, "supervisor")}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </button>
+                  )}
+                </div>
                 <p className="text-xs text-muted-foreground">{members.length} vendedor(es)</p>
                 <div className="flex flex-wrap gap-1.5 pt-1">
                   {members.map((m) => (
-                    <Badge key={m.id} className="bg-secondary text-secondary-foreground">
+                    <Badge key={m.id} className="flex items-center gap-1 bg-secondary text-secondary-foreground">
                       {m.full_name}
+                      <button
+                        type="button"
+                        aria-label={`Excluir ${m.full_name}`}
+                        className="rounded-full p-0.5 text-destructive hover:bg-destructive/10"
+                        onClick={() => askRemove(m.id, m.full_name, "vendedor")}
+                      >
+                        <X className="h-3 w-3" />
+                      </button>
                     </Badge>
                   ))}
                 </div>
