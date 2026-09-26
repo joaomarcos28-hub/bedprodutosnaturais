@@ -14,6 +14,7 @@ import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedCampanhasRouteImport } from './routes/_authenticated.campanhas'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated.dashboard'
+import { Route as AuthenticatedDiagnosticoRouteImport } from './routes/_authenticated.diagnostico'
 import { Route as AuthenticatedEquipeRouteImport } from './routes/_authenticated.equipe'
 import { Route as AuthenticatedHistoricoRouteImport } from './routes/_authenticated.historico'
 import { Route as AuthenticatedMapaRouteImport } from './routes/_authenticated.mapa'
@@ -46,6 +47,12 @@ const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
   path: '/dashboard',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
+const AuthenticatedDiagnosticoRoute =
+  AuthenticatedDiagnosticoRouteImport.update({
+    id: '/diagnostico',
+    path: '/diagnostico',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 const AuthenticatedEquipeRoute = AuthenticatedEquipeRouteImport.update({
   id: '/equipe',
   path: '/equipe',
@@ -87,6 +94,7 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/campanhas': typeof AuthenticatedCampanhasRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/diagnostico': typeof AuthenticatedDiagnosticoRoute
   '/equipe': typeof AuthenticatedEquipeRoute
   '/historico': typeof AuthenticatedHistoricoRoute
   '/mapa': typeof AuthenticatedMapaRoute
@@ -100,6 +108,7 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/campanhas': typeof AuthenticatedCampanhasRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
+  '/diagnostico': typeof AuthenticatedDiagnosticoRoute
   '/equipe': typeof AuthenticatedEquipeRoute
   '/historico': typeof AuthenticatedHistoricoRoute
   '/mapa': typeof AuthenticatedMapaRoute
@@ -115,6 +124,7 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/_authenticated/campanhas': typeof AuthenticatedCampanhasRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
+  '/_authenticated/diagnostico': typeof AuthenticatedDiagnosticoRoute
   '/_authenticated/equipe': typeof AuthenticatedEquipeRoute
   '/_authenticated/historico': typeof AuthenticatedHistoricoRoute
   '/_authenticated/mapa': typeof AuthenticatedMapaRoute
@@ -130,6 +140,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/campanhas'
     | '/dashboard'
+    | '/diagnostico'
     | '/equipe'
     | '/historico'
     | '/mapa'
@@ -143,6 +154,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/campanhas'
     | '/dashboard'
+    | '/diagnostico'
     | '/equipe'
     | '/historico'
     | '/mapa'
@@ -157,6 +169,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/_authenticated/campanhas'
     | '/_authenticated/dashboard'
+    | '/_authenticated/diagnostico'
     | '/_authenticated/equipe'
     | '/_authenticated/historico'
     | '/_authenticated/mapa'
@@ -207,6 +220,13 @@ declare module '@tanstack/react-router' {
       path: '/dashboard'
       fullPath: '/dashboard'
       preLoaderRoute: typeof AuthenticatedDashboardRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/diagnostico': {
+      id: '/_authenticated/diagnostico'
+      path: '/diagnostico'
+      fullPath: '/diagnostico'
+      preLoaderRoute: typeof AuthenticatedDiagnosticoRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
     '/_authenticated/equipe': {
@@ -275,6 +295,7 @@ const AuthenticatedVendasRouteWithChildren =
 interface AuthenticatedRouteChildren {
   AuthenticatedCampanhasRoute: typeof AuthenticatedCampanhasRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
+  AuthenticatedDiagnosticoRoute: typeof AuthenticatedDiagnosticoRoute
   AuthenticatedEquipeRoute: typeof AuthenticatedEquipeRoute
   AuthenticatedHistoricoRoute: typeof AuthenticatedHistoricoRoute
   AuthenticatedMapaRoute: typeof AuthenticatedMapaRoute
@@ -286,6 +307,7 @@ interface AuthenticatedRouteChildren {
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedCampanhasRoute: AuthenticatedCampanhasRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
+  AuthenticatedDiagnosticoRoute: AuthenticatedDiagnosticoRoute,
   AuthenticatedEquipeRoute: AuthenticatedEquipeRoute,
   AuthenticatedHistoricoRoute: AuthenticatedHistoricoRoute,
   AuthenticatedMapaRoute: AuthenticatedMapaRoute,
