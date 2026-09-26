@@ -34,7 +34,7 @@ export const movementLabels: Record<string, string> = {
 
 export const paymentLabels: Record<string, string> = {
   pix: "PIX",
-  dinheiro: "Dinheiro",
+  dinheiro: "À vista (dinheiro)",
   cartao: "Cartão",
   prazo: "A prazo",
 };
@@ -46,7 +46,7 @@ export function startOfToday(): string {
 }
 
 export function paymentLabel(m: string): string {
-  return m === "pix" ? "PIX" : m === "dinheiro" ? "Dinheiro" : m === "cartao" ? "Cartão" : m;
+  return m === "pix" ? "PIX" : m === "dinheiro" ? "À vista (dinheiro)" : m === "prazo" ? "A prazo" : m === "cartao" ? "Cartão" : m;
 }
 
 export function addDays(date: Date, days: number): Date {
