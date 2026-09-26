@@ -59,8 +59,8 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-primary text-primary-foreground shadow-soft">
               <Leaf className="h-5 w-5" />
             </span>
-            <span className="font-display text-lg font-semibold tracking-tight">
-              BeD <span className="hidden xl:inline whitespace-nowrap text-muted-foreground font-sans text-sm font-medium">Produtos Naturais</span>
+            <span className="font-display whitespace-nowrap text-lg font-semibold tracking-tight">
+              BeD <span className="hidden 2xl:inline whitespace-nowrap text-muted-foreground font-sans text-sm font-medium">Produtos Naturais</span>
             </span>
           </Link>
 

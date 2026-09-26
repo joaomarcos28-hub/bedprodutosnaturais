@@ -55,7 +55,8 @@ function OwnerDashboard() {
     queryKey: ["dashboard-owner"],
     queryFn: async () => {
       const t = startOfToday();
-      const [products, stock, salesToday, teams, profiles, campaigns, itemsToday, topItems] = await Promise.all([
+      const since = new Date(Date.now() - 13 * 86400000); since.setHours(0, 0, 0, 0);
+      const [products, stock, salesToday, teams, profiles, campaigns, itemsToday, topItems, recent] = await Promise.all([
         supabase.from("products").select("id, name, central_stock, low_stock_threshold, sale_price"),
         supabase.from("seller_stock").select("quantity"),
         supabase.from("sales").select("total").gte("created_at", t),
@@ -64,11 +65,12 @@ function OwnerDashboard() {
         supabase.from("campaigns").select("id").eq("status", "ativa"),
         supabase.from("sale_items").select("quantity, sales!inner(created_at)").gte("sales.created_at", t),
         supabase.from("sale_items").select("quantity, product:products(name)").order("quantity", { ascending: false }).limit(500),
+        supabase.from("sales").select("total, created_at").gte("created_at", since.toISOString()),
       ]);
-      if (products.error || stock.error || salesToday.error || teams.error || profiles.error || campaigns.error || itemsToday.error || topItems.error) {
+      if (products.error || stock.error || salesToday.error || teams.error || profiles.error || campaigns.error || itemsToday.error || topItems.error || recent.error) {
         throw new Error("Falha ao carregar o painel.");
       }
-      return { products: products.data!, stock: stock.data!, salesToday: salesToday.data!, teams: teams.data!, profiles: profiles.data!, campaigns: campaigns.data!, itemsToday: itemsToday.data!, topItems: topItems.data! };
+      return { products: products.data!, stock: stock.data!, salesToday: salesToday.data!, teams: teams.data!, profiles: profiles.data!, campaigns: campaigns.data!, itemsToday: itemsToday.data!, topItems: topItems.data!, recent: recent.data! };
     },
     refetchInterval: 30_000,
   });
@@ -92,9 +94,12 @@ function OwnerDashboard() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="font-display text-2xl font-semibold">Dashboard geral</h1>
+        <p className="text-sm font-medium text-primary">Olá, Administrador</p>
+        <h1 className="font-display text-3xl font-semibold">Dashboard geral</h1>
         <p className="text-sm text-muted-foreground">Visão completa da operação</p>
       </div>
+
+      <SalesChart sales={data.recent} />
 
       <div className="grid grid-cols-2 gap-3 md:grid-cols-3">
         <Stat icon={<Boxes className="h-5 w-5" />} label="Estoque central" value={`${totalCentral} un.`} />
@@ -158,6 +163,44 @@ function OwnerDashboard() {
   );
 }
 
+function SalesChart({ sales }: { sales: { total: number; created_at: string }[] }) {
+  const days = Array.from({ length: 14 }, (_, i) => {
+    const d = new Date(); d.setHours(0, 0, 0, 0); d.setDate(d.getDate() - (13 - i));
+    return d;
+  });
+  const totals = days.map((d) => {
+    const key = d.toDateString();
+    return sales.filter((s) => new Date(s.created_at).toDateString() === key).reduce((a, s) => a + Number(s.total), 0);
+  });
+  const max = Math.max(...totals, 1);
+  const sum = totals.reduce((a, b) => a + b, 0);
+  return (
+    <Card>
+      <CardHeader className="flex-row items-end justify-between">
+        <div>
+          <CardTitle>Vendas dos últimos 14 dias</CardTitle>
+          <p className="text-sm text-muted-foreground">Total no período</p>
+        </div>
+        <p className="font-display text-2xl font-semibold">{brl(sum)}</p>
+      </CardHeader>
+      <CardContent>
+        <div className="flex h-40 items-end gap-1.5">
+          {totals.map((t, i) => (
+            <div key={i} className="group flex h-full flex-1 flex-col items-center justify-end gap-1">
+              <div
+                title={`${days[i]!.toLocaleDateString("pt-BR")}: ${brl(t)}`}
+                className="w-full rounded-t-md bg-gradient-primary opacity-80 transition-opacity group-hover:opacity-100"
+                style={{ height: `${Math.max((t / max) * 100, t > 0 ? 4 : 1.5)}%` }}
+              />
+              <span className="text-[10px] text-muted-foreground">{days[i]!.getDate()}</span>
+            </div>
+          ))}
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
 function QuickLink({ to, icon, label }: { to: string; icon: React.ReactNode; label: string }) {
   return (
     <Link to={to} className="flex items-center gap-3 rounded-xl border border-border bg-card p-4 shadow-sm transition-colors hover:bg-accent">
@@ -210,6 +253,7 @@ function SupervisorDashboard() {
       <div>
         <h1 className="font-display text-2xl font-semibold">Painel do supervisor</h1>
         <p className="text-sm text-muted-foreground">Equipe: {team?.name ?? "—"}</p>
+        <Badge className="mt-2 bg-secondary text-secondary-foreground">Perfil: Supervisor · Modo visualização</Badge>
       </div>
 
       <div className="grid grid-cols-2 gap-3 md:grid-cols-3">
