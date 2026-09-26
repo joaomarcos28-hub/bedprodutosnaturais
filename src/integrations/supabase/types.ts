@@ -16,7 +16,9 @@ export type Database = {
     Tables: {
       campaigns: {
         Row: {
+          closed_at: string | null
           created_at: string
+          days_worked: number | null
           end_date: string
           id: string
           name: string | null
@@ -26,7 +28,9 @@ export type Database = {
           supervisor_id: string | null
         }
         Insert: {
+          closed_at?: string | null
           created_at?: string
+          days_worked?: number | null
           end_date: string
           id?: string
           name?: string | null
@@ -36,7 +40,9 @@ export type Database = {
           supervisor_id?: string | null
         }
         Update: {
+          closed_at?: string | null
           created_at?: string
+          days_worked?: number | null
           end_date?: string
           id?: string
           name?: string | null
@@ -186,6 +192,7 @@ export type Database = {
       }
       profiles: {
         Row: {
+          active: boolean
           created_at: string
           full_name: string
           id: string
@@ -193,6 +200,7 @@ export type Database = {
           team_id: string | null
         }
         Insert: {
+          active?: boolean
           created_at?: string
           full_name?: string
           id: string
@@ -200,6 +208,7 @@ export type Database = {
           team_id?: string | null
         }
         Update: {
+          active?: boolean
           created_at?: string
           full_name?: string
           id?: string

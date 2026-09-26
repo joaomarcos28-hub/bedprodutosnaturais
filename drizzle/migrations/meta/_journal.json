@@ -22,6 +22,13 @@
       "when": 1790446115616,
       "tag": "0002_produtos_imagem_descricao",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1790450450505,
+      "tag": "0003_desativar_usuarios_encerrar_campanhas",
+      "breakpoints": true
     }
   ]
 }
