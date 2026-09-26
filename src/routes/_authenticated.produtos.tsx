@@ -10,7 +10,7 @@ import { analyzeProductPhoto, generateProductImage, getProductImageUrls } from "
 import { Modal } from "@/components/Modal";
 import { BarcodeScanner } from "@/components/BarcodeScanner";
 import { toast } from "sonner";
-import { Barcode, ImageIcon, Minus, Pencil, Plus, ScanLine, Sparkles } from "lucide-react";
+import { Barcode, Camera, ImageIcon, Minus, Pencil, Plus, ScanLine, Sparkles } from "lucide-react";
 import type { Product } from "@/lib/types";
 
 export const Route = createFileRoute("/_authenticated/produtos")({
