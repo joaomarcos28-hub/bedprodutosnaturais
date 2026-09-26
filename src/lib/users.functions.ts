@@ -57,3 +57,49 @@ export const createTeamUser = createServerFn({ method: "POST" })
 
     return { userId: created.user.id, tempPassword };
   });
+
+async function assertOwner(context: { supabase: any; userId: string }) {
+  const { data: isOwner, error } = await context.supabase.rpc("has_role", { _user_id: context.userId, _role: "owner" });
+  if (error || !isOwner) throw new Error("Apenas o dono pode fazer isso.");
+}
+
+/** Dono exclui supervisor ou vendedor. O histórico (vendas, movimentações) é mantido. */
+export const removeTeamUser = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data) => z.object({ userId: z.string().uuid() }).parse(data))
+  .handler(async ({ data, context }) => {
+    await assertOwner(context);
+    if (data.userId === context.userId) throw new Error("Você não pode excluir a si mesmo.");
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: roles } = await supabaseAdmin.from("user_roles").select("role").eq("user_id", data.userId);
+    if ((roles ?? []).some((r) => r.role === "owner")) throw new Error("Não é possível excluir o dono.");
+    await supabaseAdmin.from("teams").update({ supervisor_id: null }).eq("supervisor_id", data.userId);
+    await supabaseAdmin.from("user_roles").delete().eq("user_id", data.userId);
+    await supabaseAdmin.from("profiles").update({ active: false, team_id: null }).eq("id", data.userId);
+    const { error } = await supabaseAdmin.auth.admin.updateUserById(data.userId, { ban_duration: "876000h" });
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
+/** Dono para a equipe: encerra a campanha ativa do supervisor, guardando dias trabalhados. */
+export const stopTeam = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data) => z.object({ teamId: z.string().uuid() }).parse(data))
+  .handler(async ({ data, context }) => {
+    await assertOwner(context);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: team } = await supabaseAdmin.from("teams").select("supervisor_id").eq("id", data.teamId).single();
+    let q = supabaseAdmin.from("campaigns").select("id, start_date").eq("status", "ativa");
+    q = team?.supervisor_id ? q.eq("supervisor_id", team.supervisor_id) : q.is("supervisor_id", null);
+    const { data: camps } = await q;
+    if (!camps || camps.length === 0) throw new Error("Esta equipe não tem campanha ativa.");
+    const today = new Date().toISOString().slice(0, 10);
+    for (const c of camps) {
+      const days = Math.max(1, Math.round((Date.parse(today) - Date.parse(c.start_date)) / 86400000) + 1);
+      await supabaseAdmin
+        .from("campaigns")
+        .update({ status: "encerrada", end_date: today, closed_at: new Date().toISOString(), days_worked: days })
+        .eq("id", c.id);
+    }
+    return { closed: camps.length };
+  });
