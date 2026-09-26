@@ -13,9 +13,9 @@ import type { Campaign } from "@/lib/types";
 export const Route = createFileRoute("/_authenticated/campanhas")({
   head: () => ({
     meta: [
-      { title: "Campanhas — BeD Produtos Naturais" },
+      { title: "Campanhas — B&D Produtos Naturais" },
       { name: "description", content: "Campanhas de 20 dias com acompanhamento dia a dia." },
-      { property: "og:title", content: "Campanhas — BeD Produtos Naturais" },
+      { property: "og:title", content: "Campanhas — B&D Produtos Naturais" },
       { property: "og:description", content: "Campanhas de 20 dias com acompanhamento dia a dia." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },

@@ -1,3 +1,4 @@
+import bgAsset from "@/assets/bd-fundo.jpg.asset.json";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useState } from "react";
@@ -11,10 +12,10 @@ import { toast } from "sonner";
 export const Route = createFileRoute("/auth")({
   head: () => ({
     meta: [
-      { title: "Entrar — BeD Produtos Naturais" },
-      { name: "description", content: "Acesse o sistema de estoque e vendas da BeD Produtos Naturais." },
-      { property: "og:title", content: "Entrar — BeD Produtos Naturais" },
-      { property: "og:description", content: "Acesse o sistema de estoque e vendas da BeD Produtos Naturais." },
+      { title: "Entrar — B&D Produtos Naturais" },
+      { name: "description", content: "Acesse o sistema de estoque e vendas da B&D Produtos Naturais." },
+      { property: "og:title", content: "Entrar — B&D Produtos Naturais" },
+      { property: "og:description", content: "Acesse o sistema de estoque e vendas da B&D Produtos Naturais." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
@@ -57,13 +58,16 @@ function AuthPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background px-4">
-      <div className="w-full max-w-md">
+    <div
+      className="relative flex min-h-screen items-end justify-center bg-background bg-cover bg-center px-4 pb-8 sm:items-center sm:pb-0 lg:justify-end lg:pr-[8vw]"
+      style={{ backgroundImage: `url(${bgAsset.url})` }}
+    >
+      <div className="relative w-full max-w-md rounded-3xl bg-card/80 p-6 shadow-elegant backdrop-blur-md">
         <div className="mb-6 flex flex-col items-center gap-2 text-center">
-          <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary text-primary-foreground">
+          <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-primary text-primary-foreground">
             <Leaf className="h-7 w-7" />
           </span>
-          <h1 className="font-display text-2xl font-semibold">BeD Produtos Naturais</h1>
+          <h1 className="font-display text-2xl font-semibold">B&D Produtos Naturais</h1>
           <p className="text-sm text-muted-foreground">Gestão de estoque e vendas porta a porta</p>
         </div>
 

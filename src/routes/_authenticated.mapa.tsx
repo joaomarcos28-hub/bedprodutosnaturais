@@ -10,9 +10,9 @@ import { MapPin } from "lucide-react";
 export const Route = createFileRoute("/_authenticated/mapa")({
   head: () => ({
     meta: [
-      { title: "Mapa da Equipe — BeD Produtos Naturais" },
+      { title: "Mapa da Equipe — B&D Produtos Naturais" },
       { name: "description", content: "Localização dos vendedores em tempo real, mediante permissão." },
-      { property: "og:title", content: "Mapa da Equipe — BeD Produtos Naturais" },
+      { property: "og:title", content: "Mapa da Equipe — B&D Produtos Naturais" },
       { property: "og:description", content: "Localização dos vendedores em tempo real, mediante permissão." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },

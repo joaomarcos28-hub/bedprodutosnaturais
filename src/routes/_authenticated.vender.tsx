@@ -15,9 +15,9 @@ import { Camera, CheckCircle2, ScanLine, ShieldCheck } from "lucide-react";
 export const Route = createFileRoute("/_authenticated/vender")({
   head: () => ({
     meta: [
-      { title: "Vender — BeD Produtos Naturais" },
+      { title: "Vender — B&D Produtos Naturais" },
       { name: "description", content: "Registrar venda porta a porta com comprovante, foto e assinatura." },
-      { property: "og:title", content: "Vender — BeD Produtos Naturais" },
+      { property: "og:title", content: "Vender — B&D Produtos Naturais" },
       { property: "og:description", content: "Registrar venda porta a porta com comprovante, foto e assinatura." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },

@@ -9,7 +9,7 @@ import { ArrowLeft, Camera, PenLine, MapPin } from "lucide-react";
 export const Route = createFileRoute("/_authenticated/vendas/$id")({
   head: () => ({
     meta: [
-      { title: "Comprovante — BeD Produtos Naturais" },
+      { title: "Comprovante — B&D Produtos Naturais" },
       { name: "robots", content: "noindex" },
     ],
   }),

@@ -10,9 +10,9 @@ import { Button, Card, CardContent, Textarea } from "@/components/ui";
 export const Route = createFileRoute("/_authenticated/diagnostico")({
   head: () => ({
     meta: [
-      { title: "Diagnóstico de erros — BeD Produtos Naturais" },
+      { title: "Diagnóstico de erros — B&D Produtos Naturais" },
       { name: "description", content: "Cole uma mensagem de erro e receba causas prováveis e sugestões de correção." },
-      { property: "og:title", content: "Diagnóstico de erros — BeD Produtos Naturais" },
+      { property: "og:title", content: "Diagnóstico de erros — B&D Produtos Naturais" },
       { property: "og:description", content: "Análise de erros com IA para administradores." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
