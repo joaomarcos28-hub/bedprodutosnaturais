@@ -1,3 +1,4 @@
+import { lazy, Suspense } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -8,10 +9,11 @@ import { Badge, Button, Card, CardContent, Input, Label, Select, Spinner, Textar
 import { useServerFn } from "@tanstack/react-start";
 import { analyzeProductPhoto, generateProductImage, getProductImageUrls } from "@/lib/product-images.functions";
 import { Modal } from "@/components/Modal";
-import { BarcodeScanner } from "@/components/BarcodeScanner";
 import { toast } from "sonner";
 import { Barcode, Camera, ImageIcon, Minus, Pencil, Plus, ScanLine, Sparkles } from "lucide-react";
 import type { Product } from "@/lib/types";
+
+const BarcodeScanner = lazy(() => import("@/components/BarcodeScanner").then((m) => ({ default: m.BarcodeScanner })));
 
 export const Route = createFileRoute("/_authenticated/produtos")({
   head: () => ({
@@ -286,7 +288,11 @@ function ProdutosPage() {
         })}
       </div>
 
-      {scanning && <BarcodeScanner onDetected={handleScanned} onClose={() => setScanning(false)} />}
+      {scanning && (
+        <Suspense fallback={null}>
+          <BarcodeScanner onDetected={handleScanned} onClose={() => setScanning(false)} />
+        </Suspense>
+      )}
 
       <Modal open={formOpen} onClose={() => setFormOpen(false)} title={form.id ? "Editar produto" : "Cadastrar produto"}>
         <form

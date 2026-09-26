@@ -130,12 +130,14 @@
 
   body {
     background-image: var(--gradient-hero), var(--leaf-pattern);
-    background-attachment: fixed;
     background-repeat: no-repeat, repeat;
   }
 
   html { -webkit-tap-highlight-color: transparent; scroll-behavior: smooth; }
   ::selection { background: color-mix(in oklab, var(--gold) 35%, transparent); }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; }
+  }
   h1, h2, h3 {
     line-height: 1.15;
     font-family: var(--font-heading);
