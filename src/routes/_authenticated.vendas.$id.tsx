@@ -142,7 +142,7 @@ function SaleDetail() {
                 <Camera className="h-4 w-4" /> Foto da ficha
               </p>
               {photoUrl ? (
-                <img src={photoUrl} alt="Foto da ficha da venda" className="w-full rounded-xl border border-border object-cover" />
+                <img src={photoUrl} alt="Foto da ficha da venda" loading="lazy" decoding="async" className="w-full rounded-xl border border-border object-cover" />
               ) : (
                 <div className="flex h-40 items-center justify-center rounded-xl bg-muted text-xs text-muted-foreground">Sem foto</div>
               )}
@@ -152,7 +152,7 @@ function SaleDetail() {
                 <PenLine className="h-4 w-4" /> Assinatura do cliente
               </p>
               {sigUrl ? (
-                <img src={sigUrl} alt="Assinatura do cliente" className="w-full rounded-xl border border-border bg-white object-contain" />
+                <img src={sigUrl} alt="Assinatura do cliente" loading="lazy" decoding="async" className="w-full rounded-xl border border-border bg-white object-contain" />
               ) : (
                 <div className="flex h-40 items-center justify-center rounded-xl bg-muted text-xs text-muted-foreground">Sem assinatura</div>
               )}

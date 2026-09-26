@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useRef, useState } from "react";
+import { lazy, Suspense, useRef, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useMyProfile } from "@/lib/auth";
@@ -7,10 +7,11 @@ import { brl } from "@/lib/format";
 import { Badge, Button, Card, CardContent, CardHeader, CardTitle, Input, Label, Spinner } from "@/components/ui";
 import { Modal } from "@/components/Modal";
 import { QtyPicker } from "@/components/QtyPicker";
-import { BarcodeScanner } from "@/components/BarcodeScanner";
 import { SignaturePad } from "@/components/SignaturePad";
 import { toast } from "sonner";
 import { Camera, CheckCircle2, ScanLine, ShieldCheck } from "lucide-react";
+
+const BarcodeScanner = lazy(() => import("@/components/BarcodeScanner").then((m) => ({ default: m.BarcodeScanner })));
 
 export const Route = createFileRoute("/_authenticated/vender")({
   head: () => ({
@@ -365,7 +366,11 @@ export function VenderPage() {
         </Modal>
       )}
 
-      {scanning && <BarcodeScanner onDetected={handleScanned} onClose={() => setScanning(false)} />}
+      {scanning && (
+        <Suspense fallback={null}>
+          <BarcodeScanner onDetected={handleScanned} onClose={() => setScanning(false)} />
+        </Suspense>
+      )}
     </div>
   );
 }
