@@ -48,36 +48,37 @@
 }
 
 :root {
-  --radius: 0.875rem;
-  --font-heading: "Fraunces", Georgia, serif;
-  --font-body: "DM Sans", ui-sans-serif, system-ui, sans-serif;
+  --radius: 1.125rem;
+  --font-heading: "Lora", Georgia, serif;
+  --font-body: "Nunito Sans", ui-sans-serif, system-ui, sans-serif;
 
-  --background: oklch(0.975 0.012 95);
+  --background: oklch(0.965 0.022 88);
   --foreground: oklch(0.24 0.035 158);
-  --card: oklch(0.997 0.004 95);
+  --card: oklch(0.99 0.012 90);
   --card-foreground: oklch(0.24 0.035 158);
   --popover: oklch(0.997 0.004 95);
   --popover-foreground: oklch(0.24 0.035 158);
-  --primary: oklch(0.36 0.085 160);
-  --primary-glow: oklch(0.5 0.11 152);
+  --primary: oklch(0.38 0.07 155);
+  --primary-glow: oklch(0.56 0.1 140);
   --primary-foreground: oklch(0.985 0.01 100);
-  --secondary: oklch(0.935 0.03 125);
+  --secondary: oklch(0.92 0.045 115);
   --secondary-foreground: oklch(0.3 0.06 160);
   --muted: oklch(0.95 0.014 100);
   --muted-foreground: oklch(0.48 0.028 155);
-  --accent: oklch(0.925 0.035 120);
-  --accent-foreground: oklch(0.3 0.06 160);
-  --gold: oklch(0.74 0.11 80);
+  --accent: oklch(0.9 0.06 85);
+  --accent-foreground: oklch(0.35 0.07 60);
+  --gold: oklch(0.72 0.13 75);
   --destructive: oklch(0.54 0.19 27);
   --destructive-foreground: oklch(0.985 0.008 120);
   --success: oklch(0.55 0.12 152);
   --success-foreground: oklch(0.985 0.008 120);
   --warning: oklch(0.76 0.13 76);
   --warning-foreground: oklch(0.3 0.05 70);
-  --border: oklch(0.905 0.018 110);
+  --border: oklch(0.88 0.03 95);
   --input: oklch(0.88 0.02 110);
   --ring: oklch(0.5 0.1 155);
   --gradient-primary: linear-gradient(135deg, var(--primary), var(--primary-glow));
+  --leaf-pattern: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120' viewBox='0 0 120 120'%3E%3Cg fill='none' stroke='%23537a4f' stroke-opacity='0.07' stroke-width='1.5'%3E%3Cpath d='M20 60c10-22 30-28 40-26-2 14-14 32-40 26zM20 60l40-26'/%3E%3Cpath d='M78 100c6-14 20-18 26-16-2 9-9 20-26 16zM78 100l26-16'/%3E%3C/g%3E%3C/svg%3E");
   --gradient-hero: radial-gradient(1200px 400px at 10% -10%, oklch(0.92 0.05 130 / 0.7), transparent 60%), radial-gradient(900px 300px at 100% 0%, oklch(0.93 0.05 85 / 0.5), transparent 60%);
   --shadow-soft: 0 1px 2px oklch(0.3 0.04 158 / 0.05), 0 4px 16px -4px oklch(0.3 0.04 158 / 0.08);
   --shadow-elegant: 0 2px 4px oklch(0.3 0.04 158 / 0.05), 0 16px 40px -12px oklch(0.3 0.08 158 / 0.22);
@@ -127,9 +128,9 @@
   }
 
   body {
-    background-image: var(--gradient-hero);
+    background-image: var(--gradient-hero), var(--leaf-pattern);
     background-attachment: fixed;
-    background-repeat: no-repeat;
+    background-repeat: no-repeat, repeat;
   }
 
   h1, h2, h3 {
@@ -137,7 +138,7 @@
     letter-spacing: -0.015em;
   }
 
-  h1 { font-variation-settings: "opsz" 72; }
+  
 
 }
 
