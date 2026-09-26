@@ -15,6 +15,13 @@
       "when": 1790273539527,
       "tag": "0001_dono_le_papeis_e_ligacoes",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1790446115616,
+      "tag": "0002_produtos_imagem_descricao",
+      "breakpoints": true
     }
   ]
 }
