@@ -6,11 +6,11 @@ import { useMyRole } from "@/lib/auth";
 import { brl } from "@/lib/format";
 import { Badge, Button, Card, CardContent, Input, Label, Select, Spinner, Textarea } from "@/components/ui";
 import { useServerFn } from "@tanstack/react-start";
-import { generateProductImage, getProductImageUrls } from "@/lib/product-images.functions";
+import { analyzeProductPhoto, generateProductImage, getProductImageUrls } from "@/lib/product-images.functions";
 import { Modal } from "@/components/Modal";
 import { BarcodeScanner } from "@/components/BarcodeScanner";
 import { toast } from "sonner";
-import { Barcode, ImageIcon, Minus, Pencil, Plus, ScanLine, Sparkles } from "lucide-react";
+import { Barcode, Camera, ImageIcon, Minus, Pencil, Plus, ScanLine, Sparkles } from "lucide-react";
 import type { Product } from "@/lib/types";
 
 export const Route = createFileRoute("/_authenticated/produtos")({
@@ -40,6 +40,16 @@ const emptyForm = {
   image_url: "",
 };
 
+async function shrinkImage(file: File): Promise<string> {
+  const bmp = await createImageBitmap(file);
+  const scale = Math.min(1, 1280 / Math.max(bmp.width, bmp.height));
+  const canvas = document.createElement("canvas");
+  canvas.width = Math.round(bmp.width * scale);
+  canvas.height = Math.round(bmp.height * scale);
+  canvas.getContext("2d")!.drawImage(bmp, 0, 0, canvas.width, canvas.height);
+  return canvas.toDataURL("image/jpeg", 0.85);
+}
+
 function ProdutosPage() {
   const { data: role, isLoading: roleLoading } = useMyRole();
   const queryClient = useQueryClient();
@@ -57,6 +67,22 @@ function ProdutosPage() {
   });
 
   const genImage = useServerFn(generateProductImage);
+  const analyzePhoto = useServerFn(analyzeProductPhoto);
+  const photoMutation = useMutation({
+    mutationFn: async (file: File) => {
+      const dataUrl = await shrinkImage(file);
+      return analyzePhoto({ data: { image: dataUrl } });
+    },
+    onSuccess: (r) => {
+      setForm({ ...emptyForm, name: r.name, category: r.category, description: r.description, image_url: r.path });
+      setPreview(r.url);
+      setFormOpen(true);
+      if (!r.name) toast.info("Não consegui ler o nome. Preencha manualmente.");
+      else if (!r.path) toast.info("Nome identificado! A foto não pôde ser melhorada — gere uma imagem no formulário.");
+      else toast.success("Produto identificado! Confira os dados e salve.");
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
   const fetchUrls = useServerFn(getProductImageUrls);
   const [preview, setPreview] = useState("");
   const paths = (products ?? []).map((p) => p.image_url).filter((x): x is string => !!x);
@@ -176,8 +202,22 @@ function ProdutosPage() {
           <p className="text-sm text-muted-foreground">Cadastre produtos e controle o estoque central</p>
         </div>
         <div className="flex gap-2">
+          <label className={`inline-flex h-11 cursor-pointer items-center gap-2 rounded-lg bg-primary px-4 text-sm font-medium text-primary-foreground shadow-sm ${photoMutation.isPending ? "pointer-events-none opacity-60" : ""}`}>
+            <Camera className="h-4 w-4" /> {photoMutation.isPending ? "Analisando foto…" : "Registrar pela câmera"}
+            <input
+              type="file"
+              accept="image/*"
+              capture="environment"
+              className="hidden"
+              onChange={(e) => {
+                const f = e.target.files?.[0];
+                e.target.value = "";
+                if (f) photoMutation.mutate(f);
+              }}
+            />
+          </label>
           <Button variant="outline" onClick={() => setScanning(true)}>
-            <ScanLine className="h-4 w-4" /> Escanear produto
+            <ScanLine className="h-4 w-4" /> Código de barras
           </Button>
           <Button
             onClick={() => {
@@ -186,7 +226,7 @@ function ProdutosPage() {
               setFormOpen(true);
             }}
           >
-            <Plus className="h-4 w-4" /> Novo produto
+            <Plus className="h-4 w-4" /> Adicionar manual
           </Button>
         </div>
       </div>
