@@ -2,7 +2,8 @@ import { Outlet, createFileRoute, redirect } from "@tanstack/react-router";
 import { useQueryClient } from "@tanstack/react-query";
 import { useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { useAuthListener, useSession } from "@/lib/auth";
+import { useAuthListener, useMyRole, useSession } from "@/lib/auth";
+import { LocationTracker } from "@/components/LocationTracker";
 import { AppShell } from "@/components/AppShell";
 import { Spinner } from "@/components/ui";
 
@@ -19,6 +20,7 @@ export const Route = createFileRoute("/_authenticated")({
 function AuthenticatedLayout() {
   useAuthListener();
   const { data: session } = useSession();
+  const { data: role } = useMyRole();
   const queryClient = useQueryClient();
   const uid = session?.user?.id;
 
@@ -41,6 +43,7 @@ function AuthenticatedLayout() {
 
   return (
     <AppShell>
+      {role === "seller" && uid && <LocationTracker userId={uid} />}
       <Outlet />
     </AppShell>
   );

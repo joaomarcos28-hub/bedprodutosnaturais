@@ -9,7 +9,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { analyzeProductPhoto, generateProductImage, getProductImageUrls } from "@/lib/product-images.functions";
 import { Modal } from "@/components/Modal";
 import { toast } from "sonner";
-import { Barcode, Camera, ImageIcon, Minus, Pencil, Plus, ScanLine, Sparkles } from "lucide-react";
+import { Barcode, Camera, ImageIcon, Minus, Pencil, Plus, ScanLine, Sparkles, Trash2 } from "lucide-react";
 import type { Product } from "@/lib/types";
 
 const BarcodeScanner = lazy(() => import("@/components/BarcodeScanner").then((m) => ({ default: m.BarcodeScanner })));
@@ -123,6 +123,18 @@ function ProdutosPage() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["products"] });
       queryClient.invalidateQueries({ queryKey: ["movements"] });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  const remove = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase.from("products").delete().eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast.success("Produto excluído.");
+      queryClient.invalidateQueries({ queryKey: ["products"] });
     },
     onError: (e: Error) => toast.error(e.message),
   });
@@ -279,6 +291,18 @@ function ProdutosPage() {
                   </Button>
                   <Button variant="ghost" size="icon" onClick={() => openEdit(p)} aria-label={`Editar ${p.name}`}>
                     <Pencil className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="text-destructive"
+                    disabled={remove.isPending}
+                    onClick={() => {
+                      if (confirm(`Excluir "${p.name}"? O histórico de vendas é mantido.`)) remove.mutate(p.id);
+                    }}
+                    aria-label={`Excluir ${p.name}`}
+                  >
+                    <Trash2 className="h-4 w-4" />
                   </Button>
                 </div>
               </CardContent>
