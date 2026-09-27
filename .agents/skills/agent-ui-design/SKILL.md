@@ -1,6 +1,6 @@
 ---
 name: Agent UI Design
-description: Padrões de interface para aplicações de agentes e chat: layout três painéis (threads / chat / contexto), renderização de texto em streaming com indicador de cursor, cards de execução de ferramentas com estados de loading, visualização de sandbox e histórico de conversas. Inclui os padrões de interação usados pelas principais interfaces de IA do mercado.
+description: "Padrões de interface para aplicações de agentes e chat: layout três painéis (threads / chat / contexto), renderização de texto em streaming com indicador de cursor, cards de execução de ferramentas com estados de loading, visualização de sandbox e histórico de conversas. Inclui os padrões de interação usados pelas principais interfaces de IA do mercado."
 ---
 
 Apply agent UI design patterns to this project.
