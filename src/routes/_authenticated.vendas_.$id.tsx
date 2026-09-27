@@ -6,7 +6,7 @@ import { brl, formatDateTime, paymentLabel } from "@/lib/format";
 import { Badge, Card, CardContent, CardHeader, CardTitle, Spinner } from "@/components/ui";
 import { ArrowLeft, Camera, PenLine, MapPin } from "lucide-react";
 
-export const Route = createFileRoute("/_authenticated/vendas/$id")({
+export const Route = createFileRoute("/_authenticated/vendas_/$id")({
   head: () => ({
     meta: [
       { title: "Comprovante — B&D Produtos Naturais" },
@@ -142,7 +142,10 @@ function SaleDetail() {
                 <Camera className="h-4 w-4" /> Foto da ficha
               </p>
               {photoUrl ? (
-                <img src={photoUrl} alt="Foto da ficha da venda" loading="lazy" decoding="async" className="w-full rounded-xl border border-border object-cover" />
+                <a href={photoUrl} target="_blank" rel="noreferrer" title="Abrir foto em tamanho grande">
+                  <img src={photoUrl} alt="Foto da ficha da venda" loading="lazy" decoding="async" className="w-full rounded-xl border border-border object-cover" />
+                  <span className="mt-1 block text-xs text-muted-foreground">Toque para ampliar</span>
+                </a>
               ) : (
                 <div className="flex h-40 items-center justify-center rounded-xl bg-muted text-xs text-muted-foreground">Sem foto</div>
               )}
