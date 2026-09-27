@@ -57,6 +57,13 @@
       "when": 1790551109967,
       "tag": "0007_indices_performance",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1790551296266,
+      "tag": "0008_vendas_tempo_real",
+      "breakpoints": true
     }
   ]
 }
