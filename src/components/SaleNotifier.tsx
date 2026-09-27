@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
-import { formatBRL } from "@/lib/format";
+import { brl } from "@/lib/format";
 
 /** Avisa o dono, em tempo real, quando um vendedor conclui uma venda. */
 export function SaleNotifier() {
@@ -15,11 +15,11 @@ export function SaleNotifier() {
         const { data } = await supabase.from("profiles").select("full_name").eq("id", sale.seller_id).maybeSingle();
         const name = data?.full_name || "Vendedor";
         toast.success("Venda concluída", {
-          description: `${name} vendeu ${formatBRL(Number(sale.total))}`,
+          description: `${name} vendeu ${brl(sale.total)}`,
           duration: 8000,
         });
         if (typeof Notification !== "undefined" && Notification.permission === "granted" && document.hidden) {
-          new Notification("Venda concluída", { body: `${name} vendeu ${formatBRL(Number(sale.total))}` });
+          new Notification("Venda concluída", { body: `${name} vendeu ${brl(sale.total)}` });
         }
         queryClient.invalidateQueries({ queryKey: ["sales"] });
         queryClient.invalidateQueries({ queryKey: ["dashboard"] });
