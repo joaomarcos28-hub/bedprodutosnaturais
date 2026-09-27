@@ -1,10 +1,11 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useMyRole } from "@/lib/auth";
 import { brl, formatDateTime, paymentLabel, startOfToday } from "@/lib/format";
-import { Badge, Card, CardContent, Spinner } from "@/components/ui";
-import { HandCoins } from "lucide-react";
+import { Badge, Button, Card, CardContent, Spinner } from "@/components/ui";
+import { HandCoins, Trash2 } from "lucide-react";
+import { toast } from "sonner";
 import type { Sale } from "@/lib/types";
 
 export const Route = createFileRoute("/_authenticated/vendas")({
@@ -41,6 +42,19 @@ function VendasPage() {
       return data as unknown as SaleRow[];
     },
     refetchInterval: 20_000,
+  });
+
+  const queryClient = useQueryClient();
+  const remove = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase.rpc("delete_sale", { p_sale_id: id });
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast.success("Venda excluída.");
+      queryClient.invalidateQueries();
+    },
+    onError: (e: Error) => toast.error(e.message),
   });
 
   if (roleLoading || isLoading || !sales) return <Spinner />;
@@ -87,6 +101,22 @@ function VendasPage() {
                   {s.photo_url && <Badge className="bg-secondary text-secondary-foreground">com foto</Badge>}
                   {s.signature_url && <Badge className="bg-secondary text-secondary-foreground">assinado</Badge>}
                   <span className="font-display text-lg font-semibold">{brl(s.total)}</span>
+                  {role === "owner" && (
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="text-destructive"
+                      aria-label="Excluir venda"
+                      disabled={remove.isPending}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        if (confirm(`Excluir a venda de ${brl(s.total)}? Os produtos voltam para o estoque do vendedor.`)) remove.mutate(s.id);
+                      }}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  )}
                 </div>
               </CardContent>
             </Card>
