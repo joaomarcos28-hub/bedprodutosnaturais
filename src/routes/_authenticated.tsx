@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuthListener, useMyRole, useSession } from "@/lib/auth";
 import { LocationTracker } from "@/components/LocationTracker";
 import { AppShell } from "@/components/AppShell";
+import { SaleNotifier } from "@/components/SaleNotifier";
 import { Spinner } from "@/components/ui";
 
 // Layout protegido: exige sessão ativa e prepara o perfil do usuário.
@@ -44,6 +45,7 @@ function AuthenticatedLayout() {
   return (
     <AppShell>
       {role === "seller" && uid && <LocationTracker userId={uid} />}
+      {role === "owner" && <SaleNotifier />}
       <Outlet />
     </AppShell>
   );
