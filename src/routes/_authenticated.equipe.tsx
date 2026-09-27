@@ -9,7 +9,7 @@ import { Badge, Button, Card, CardContent, CardHeader, CardTitle, Input, Label, 
 import { Modal } from "@/components/Modal";
 import { QtyPicker } from "@/components/QtyPicker";
 import { toast } from "sonner";
-import { Camera, HandCoins, PackagePlus, Receipt, Pencil, Square, Trash2, UserPlus, Users, X } from "lucide-react";
+import { Camera, HandCoins, PackagePlus, Pencil, Square, Trash2, UserPlus, Users, X } from "lucide-react";
 import type { Product } from "@/lib/types";
 
 interface TeamRow { id: string; name: string; supervisor_id: string | null }
@@ -546,7 +546,7 @@ function SupervisorTeam() {
                 </div>
                 <div className="flex flex-wrap justify-end gap-2">
                 <Button size="sm" variant="outline" onClick={() => setSaleFor({ id: m.id, name: m.full_name })}>
-                  <Receipt className="h-4 w-4" /> Registrar venda
+                  <Camera className="h-4 w-4" /> Registro com foto
                 </Button>
                 <Button
                   size="sm"
@@ -571,7 +571,7 @@ function SupervisorTeam() {
         )}
       </div>
 
-      <Modal open={!!saleFor} onClose={() => setSaleFor(null)} title={`Registrar venda — ${saleFor?.name ?? ""}`}>
+      <Modal open={!!saleFor} onClose={() => setSaleFor(null)} title={`Registro com foto — ${saleFor?.name ?? ""}`}>
         <form className="space-y-4" onSubmit={(e) => { e.preventDefault(); registerSale.mutate(); }}>
           <div className="space-y-1.5">
             <Label>Valor vendido (R$)</Label>
@@ -597,7 +597,7 @@ function SupervisorTeam() {
             <Input value={saleCustomer} onChange={(e) => setSaleCustomer(e.target.value)} placeholder="Maria" />
           </div>
           <div className="space-y-1.5">
-            <Label>Foto da nota</Label>
+            <Label>Registro com foto</Label>
             <label className="flex cursor-pointer items-center gap-2 rounded-lg border border-dashed border-border px-3 py-3 text-sm text-muted-foreground">
               <Camera className="h-4 w-4" />
               {salePhoto ? salePhoto.name : "Tirar ou escolher foto"}

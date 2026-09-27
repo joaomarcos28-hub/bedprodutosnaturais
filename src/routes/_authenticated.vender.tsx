@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { lazy, Suspense, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useMyProfile } from "@/lib/auth";
@@ -9,9 +9,7 @@ import { Modal } from "@/components/Modal";
 import { QtyPicker } from "@/components/QtyPicker";
 import { SignaturePad } from "@/components/SignaturePad";
 import { toast } from "sonner";
-import { Camera, CheckCircle2, ScanLine, ShieldCheck } from "lucide-react";
-
-const BarcodeScanner = lazy(() => import("@/components/BarcodeScanner").then((m) => ({ default: m.BarcodeScanner })));
+import { Camera, CheckCircle2, ShieldCheck } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/vender")({
   head: () => ({
@@ -47,8 +45,8 @@ export function VenderPage() {
   const [photoFile, setPhotoFile] = useState<File | null>(null);
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
   const [signature, setSignature] = useState<string | null>(null);
-  const [scanning, setScanning] = useState(false);
   const photoInputRef = useRef<HTMLInputElement>(null);
+  const regPhotoInputRef = useRef<HTMLInputElement>(null);
 
   const { data: stock, isLoading } = useQuery({
     queryKey: ["my-stock", uid],
@@ -67,10 +65,10 @@ export function VenderPage() {
 
   const finishSale = useMutation({
     mutationFn: async () => {
-      if (!uid) throw new Error("Sessão não encontrada.");
+      if (!uid) throw new Error("Sess\u00e3o n\u00e3o encontrada.");
       if (items.length === 0) throw new Error("Adicione ao menos um produto.");
-      if (!photoFile) throw new Error("Tire a foto da ficha antes de finalizar.");
-      if (!signature) throw new Error("Peça a assinatura do cliente antes de finalizar.");
+      if (!photoFile) throw new Error("Tire a foto antes de finalizar.");
+      if (!signature) throw new Error("Pe\u00e7a a assinatura do cliente antes de finalizar.");
 
       let latitude: number | null = null;
       let longitude: number | null = null;
@@ -82,7 +80,7 @@ export function VenderPage() {
           latitude = pos.coords.latitude;
           longitude = pos.coords.longitude;
         } catch {
-          toast.warning("Não foi possível obter a localização. A venda será salva sem ela.");
+          toast.warning("N\u00e3o foi poss\u00edvel obter a localiza\u00e7\u00e3o. A venda ser\u00e1 salva sem ela.");
         }
       }
 
@@ -152,17 +150,6 @@ export function VenderPage() {
     });
   }
 
-  function handleScanned(code: string) {
-    setScanning(false);
-    const row = stock?.find((s) => s.product?.barcode === code.trim());
-    if (row?.product) {
-      addItem(row.product.id, row.product.name, Number(row.product.sale_price), row.quantity);
-      toast.success("Produto adicionado: " + row.product.name);
-    } else {
-      toast.info("Esse código não está no seu estoque. Veja “Meu estoque” ou peça entrega ao supervisor.");
-    }
-  }
-
   const total = items.reduce((s, i) => s + i.price * i.qty, 0);
   const stockMax = (productId: string) => stock?.find((s) => s.product_id === productId)?.quantity ?? 0;
 
@@ -200,7 +187,7 @@ export function VenderPage() {
             {stock && stock.length === 0 && (
               <Card>
                 <CardContent className="p-8 text-center text-sm text-muted-foreground">
-                  Você ainda não recebeu produtos. Peça entrega ao seu supervisor.
+                  Voc\u00ea ainda n\u00e3o recebeu produtos. Pe\u00e7a entrega ao seu supervisor.
                 </CardContent>
               </Card>
             )}
@@ -214,18 +201,40 @@ export function VenderPage() {
           <Card>
             <CardHeader className="flex-row items-center justify-between">
               <CardTitle>1. Produtos</CardTitle>
-              <Button variant="outline" size="sm" onClick={() => setScanning(true)}>
-                <ScanLine className="h-4 w-4" /> Escanear
-              </Button>
+              <label className="inline-flex h-10 cursor-pointer items-center gap-2 rounded-lg border border-input bg-card px-3.5 text-sm font-semibold text-foreground shadow-soft transition-all hover:border-primary/40 hover:bg-accent active:scale-[0.98] select-none">
+                <Camera className="h-4 w-4" /> Registro com foto
+                <input
+                  ref={regPhotoInputRef}
+                  type="file"
+                  accept="image/*"
+                  capture="environment"
+                  className="hidden"
+                  onChange={(e) => {
+                    const f = e.target.files?.[0] ?? null;
+                    e.target.value = "";
+                    if (f) {
+                      setPhotoFile(f);
+                      setPhotoPreview(URL.createObjectURL(f));
+                      toast.success("Foto registrada! Ela ser\u00e1 salva com a venda.");
+                    }
+                  }}
+                />
+              </label>
             </CardHeader>
             <CardContent className="space-y-2">
+              {photoPreview && (
+                <div className="mb-3 rounded-xl border border-border overflow-hidden">
+                  <img src={photoPreview} alt="Foto registrada" className="max-h-40 w-full object-cover" />
+                  <p className="px-3 py-1.5 text-xs text-muted-foreground">Foto registrada \u2714</p>
+                </div>
+              )}
               {stock?.map((r) =>
                 r.product ? (
                   <div key={r.product_id} className="flex items-center justify-between gap-2 rounded-lg bg-secondary/50 px-3 py-2">
                     <div className="min-w-0">
                       <p className="truncate text-sm font-medium">{r.product.name}</p>
                       <p className="text-xs text-muted-foreground">
-                        {brl(r.product.sale_price)} · {r.quantity} disponíveis
+                        {brl(r.product.sale_price)} \u00b7 {r.quantity} dispon\u00edveis
                       </p>
                     </div>
                     <Button size="sm" variant="outline" onClick={() => addItem(r.product!.id, r.product!.name, Number(r.product!.sale_price), r.quantity)}>
@@ -240,7 +249,7 @@ export function VenderPage() {
           {/* Carrinho + cliente */}
           <Card>
             <CardHeader>
-              <CardTitle>2. Revisão da venda</CardTitle>
+              <CardTitle>2. Revis\u00e3o da venda</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               {items.length === 0 && <p className="text-sm text-muted-foreground">Nenhum produto escolhido ainda.</p>}
@@ -281,7 +290,7 @@ export function VenderPage() {
                         payment === p ? "border-primary bg-secondary text-secondary-foreground" : "border-border text-muted-foreground hover:bg-accent"
                       }`}
                     >
-                      {p === "pix" ? "PIX" : p === "dinheiro" ? "À vista (dinheiro)" : "A prazo"}
+                      {p === "pix" ? "PIX" : p === "dinheiro" ? "\u00c0 vista (dinheiro)" : "A prazo"}
                     </button>
                   ))}
                 </div>
@@ -291,9 +300,9 @@ export function VenderPage() {
                 <input type="checkbox" checked={shareLocation} onChange={(e) => setShareLocation(e.target.checked)} className="mt-0.5" />
                 <span>
                   <span className="inline-flex items-center gap-1 font-medium">
-                    <ShieldCheck className="h-4 w-4 text-primary" /> Registrar minha localização nesta venda
+                    <ShieldCheck className="h-4 w-4 text-primary" /> Registrar minha localiza\u00e7\u00e3o nesta venda
                   </span>
-                  <span className="block text-xs text-muted-foreground">Opcional. Só enviamos a localização se você autorizar.</span>
+                  <span className="block text-xs text-muted-foreground">Opcional. S\u00f3 enviamos a localiza\u00e7\u00e3o se voc\u00ea autorizar.</span>
                 </span>
               </label>
 
@@ -316,7 +325,7 @@ export function VenderPage() {
           <div className="space-y-4">
             <div>
               <p className="mb-1.5 flex items-center gap-1.5 text-sm font-medium">
-                <Camera className="h-4 w-4" /> Foto da ficha
+                <Camera className="h-4 w-4" /> Registro com foto
               </p>
               <input
                 ref={photoInputRef}
@@ -332,7 +341,7 @@ export function VenderPage() {
               />
               {photoPreview ? (
                 <button type="button" className="block w-full" onClick={() => photoInputRef.current?.click()} aria-label="Trocar foto">
-                  <img src={photoPreview} alt="Prévia da ficha" className="max-h-48 w-full rounded-xl border border-border object-cover" />
+                  <img src={photoPreview} alt="Pr\u00e9via da ficha" className="max-h-48 w-full rounded-xl border border-border object-cover" />
                   <span className="mt-1 block text-xs text-muted-foreground">Toque para trocar a foto</span>
                 </button>
               ) : (
@@ -354,22 +363,16 @@ export function VenderPage() {
 
             <Button className="w-full" size="lg" variant="success" disabled={finishSale.isPending || !photoFile || !signature} onClick={() => finishSale.mutate()}>
               <CheckCircle2 className="h-5 w-5" />
-              {finishSale.isPending ? "Registrando…" : "Finalizar venda"}
+              {finishSale.isPending ? "Registrando\u2026" : "Finalizar venda"}
             </Button>
             {(!photoFile || !signature) && (
-              <p className="text-center text-xs text-muted-foreground">Falta: {[!photoFile && "foto da ficha", !signature && "assinatura"].filter(Boolean).join(" e ")}</p>
+              <p className="text-center text-xs text-muted-foreground">Falta: {[!photoFile && "foto", !signature && "assinatura"].filter(Boolean).join(" e ")}</p>
             )}
             <Button variant="ghost" className="w-full" onClick={() => setStep(1)}>
               Voltar
             </Button>
           </div>
         </Modal>
-      )}
-
-      {scanning && (
-        <Suspense fallback={null}>
-          <BarcodeScanner onDetected={handleScanned} onClose={() => setScanning(false)} />
-        </Suspense>
       )}
     </div>
   );
