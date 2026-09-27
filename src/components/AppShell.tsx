@@ -1,5 +1,6 @@
+import { useState } from "react";
 import { Link, useRouter } from "@tanstack/react-router";
-import { Leaf, LogOut, LayoutDashboard, Package, Users, Receipt, Flag, MapPin, History, Sparkles, ShoppingBag, type LucideIcon } from "lucide-react";
+import { Menu, X, Leaf, LogOut, LayoutDashboard, Package, Users, Receipt, Flag, MapPin, History, Sparkles, ShoppingBag, type LucideIcon } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "./ui";
 import { useMyProfile, useMyRole, useSession, type AppRole } from "@/lib/auth";
@@ -42,6 +43,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const { data: role } = useMyRole();
   const { data: profile } = useMyProfile();
   const router = useRouter();
+  const [menuOpen, setMenuOpen] = useState(false);
 
   const nav = role ? navByRole[role] : navByRole.seller;
 
@@ -55,6 +57,9 @@ export function AppShell({ children }: { children: React.ReactNode }) {
     <div className="min-h-screen bg-background">
       <header className="sticky top-0 z-40 border-b border-border/60 bg-card/75 backdrop-blur-xl">
         <div className="mx-auto flex max-w-6xl items-center gap-3 px-4 py-3">
+          <Button variant="ghost" size="icon" className="md:hidden" onClick={() => setMenuOpen(true)} aria-label="Abrir menu">
+            <Menu className="h-6 w-6" />
+          </Button>
           <Link to="/dashboard" className="flex items-center gap-2">
             <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-primary text-primary-foreground shadow-soft">
               <Leaf className="h-5 w-5" />
@@ -92,25 +97,39 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
       </header>
 
-      <main className="animate-in fade-in slide-in-from-bottom-1 duration-300 mx-auto max-w-6xl px-4 pb-28 pt-6 sm:px-6 md:pb-10 md:pt-8">{children}</main>
+      <main className="animate-in fade-in slide-in-from-bottom-1 duration-300 mx-auto max-w-6xl px-4 pb-10 pt-6 sm:px-6 md:pt-8">{children}</main>
 
-      <nav className="fixed inset-x-0 bottom-0 z-40 border-t border-border/60 bg-card/90 pb-[env(safe-area-inset-bottom)] backdrop-blur-xl md:hidden">
-        <div className="flex gap-1 overflow-x-auto px-2 py-1.5">
-          {nav.map((item) => (
-            <Link
-              key={item.to}
-              to={item.to}
-              className={cn(
-                "flex min-w-[4.25rem] flex-1 flex-col items-center gap-0.5 rounded-xl px-2 py-2 text-[11px] font-semibold text-muted-foreground transition-all active:scale-95",
-              )}
-              activeProps={{ className: "bg-primary/10 text-primary" }}
-            >
-              <item.icon className="h-5 w-5" strokeWidth={2.2} />
-              <span className="whitespace-nowrap">{item.label}</span>
-            </Link>
-          ))}
+      {menuOpen && (
+        <div className="fixed inset-0 z-50 md:hidden">
+          <button aria-label="Fechar menu" className="absolute inset-0 bg-foreground/40 animate-in fade-in" onClick={() => setMenuOpen(false)} />
+          <aside className="absolute inset-y-0 left-0 flex w-72 max-w-[85vw] flex-col bg-card shadow-elegant animate-in slide-in-from-left duration-200">
+            <div className="flex items-center justify-between border-b border-border/60 px-4 py-3">
+              <span className="font-display text-lg font-semibold">B&amp;D Produtos Naturais</span>
+              <Button variant="ghost" size="icon" onClick={() => setMenuOpen(false)} aria-label="Fechar menu">
+                <X className="h-5 w-5" />
+              </Button>
+            </div>
+            <nav className="flex flex-1 flex-col gap-1 overflow-y-auto p-3">
+              {nav.map((item) => (
+                <Link
+                  key={item.to}
+                  to={item.to}
+                  onClick={() => setMenuOpen(false)}
+                  className={cn("flex items-center gap-3 rounded-xl px-3 py-3 text-base font-semibold text-muted-foreground transition-all active:scale-[0.98]")}
+                  activeProps={{ className: "bg-primary/10 text-primary" }}
+                >
+                  <item.icon className="h-5 w-5" strokeWidth={2.2} />
+                  {item.label}
+                </Link>
+              ))}
+            </nav>
+            <div className="border-t border-border/60 p-4">
+              <p className="truncate text-sm font-medium">{profile?.full_name ?? session?.user?.email}</p>
+              <p className="text-xs text-muted-foreground">{role ? roleLabels[role] : "…"}</p>
+            </div>
+          </aside>
         </div>
-      </nav>
+      )}
     </div>
   );
 }
