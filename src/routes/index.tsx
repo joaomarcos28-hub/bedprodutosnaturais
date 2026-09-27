@@ -23,7 +23,7 @@ function Index() {
         <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-primary text-primary-foreground">
           <Leaf className="h-7 w-7" />
         </span>
-        <p className="font-display text-lg font-semibold">B&D Produtos Naturais</p>
+        <p className="font-display text-lg font-semibold text-primary">B&D Produtos Naturais</p>
         <div className="h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent" />
       </div>
     </div>

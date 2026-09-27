@@ -67,8 +67,8 @@ function AuthPage() {
           <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-primary text-primary-foreground">
             <Leaf className="h-7 w-7" />
           </span>
-          <h1 className="font-display text-2xl font-semibold">B&D Produtos Naturais</h1>
-          <p className="text-sm text-muted-foreground">Gestão de estoque e vendas porta a porta</p>
+          <h1 className="font-display text-2xl font-semibold text-primary">B&D Produtos Naturais</h1>
+          <p className="text-sm text-muted-foreground">Trazendo mais vida verde e bem-estar com produtos naturais.<br/>Gestão de estoque e vendas.</p>
         </div>
 
         <Card>
