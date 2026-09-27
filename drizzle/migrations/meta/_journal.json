@@ -43,6 +43,13 @@
       "when": 1790550817927,
       "tag": "0005_dono_exclui_venda",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1790550944785,
+      "tag": "0006_dono_limpa_historico",
+      "breakpoints": true
     }
   ]
 }
