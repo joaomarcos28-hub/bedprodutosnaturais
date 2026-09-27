@@ -202,8 +202,8 @@ function ProdutosPage() {
           <h1 className="font-display text-2xl font-semibold">Produtos e estoque</h1>
           <p className="text-sm text-muted-foreground">Cadastre produtos e controle o estoque central</p>
         </div>
-        <div className="flex gap-2">
-          <label className={`inline-flex h-11 cursor-pointer items-center gap-2 rounded-lg bg-primary px-4 text-sm font-medium text-primary-foreground shadow-sm ${photoMutation.isPending ? "pointer-events-none opacity-60" : ""}`}>
+        <div className="grid w-full grid-cols-1 gap-2 sm:flex sm:w-auto sm:flex-wrap [&>*]:w-full sm:[&>*]:w-auto">
+          <label className={`inline-flex h-11 cursor-pointer items-center justify-center gap-2 rounded-lg bg-primary px-4 text-sm font-medium text-primary-foreground shadow-sm ${photoMutation.isPending ? "pointer-events-none opacity-60" : ""}`}>
             <Camera className="h-4 w-4" /> {photoMutation.isPending ? "Analisando foto…" : "Registrar pela câmera"}
             <input
               type="file"

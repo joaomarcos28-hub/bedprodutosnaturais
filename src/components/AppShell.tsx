@@ -74,14 +74,14 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                 activeProps={{ className: "bg-primary/10 text-primary hover:bg-primary/10" }}
               >
                 <item.icon className="h-4 w-4" />
-                <span className="hidden lg:inline">{item.label}</span>
+                <span className="hidden xl:inline">{item.label}</span>
               </Link>
             ))}
           </nav>
 
           <div className="ml-auto flex items-center gap-2 md:ml-2">
-            <div className="hidden text-right sm:block">
-              <p className="text-sm font-medium leading-tight">{profile?.full_name ?? session?.user?.email}</p>
+            <div className="hidden min-w-0 max-w-[10rem] text-right sm:block">
+              <p className="truncate text-sm font-medium leading-tight">{profile?.full_name ?? session?.user?.email}</p>
               <p className="text-xs text-muted-foreground">{role ? roleLabels[role] : "…"}</p>
             </div>
             <Button variant="ghost" size="icon" onClick={handleLogout} aria-label="Sair">
