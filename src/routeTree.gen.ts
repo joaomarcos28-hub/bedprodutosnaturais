@@ -21,7 +21,7 @@ import { Route as AuthenticatedMapaRouteImport } from './routes/_authenticated.m
 import { Route as AuthenticatedProdutosRouteImport } from './routes/_authenticated.produtos'
 import { Route as AuthenticatedVendasRouteImport } from './routes/_authenticated.vendas'
 import { Route as AuthenticatedVenderRouteImport } from './routes/_authenticated.vender'
-import { Route as AuthenticatedVendasIdRouteImport } from './routes/_authenticated.vendas.$id'
+import { Route as AuthenticatedVendasIdRouteImport } from './routes/_authenticated.vendas_.$id'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -84,9 +84,9 @@ const AuthenticatedVenderRoute = AuthenticatedVenderRouteImport.update({
   getParentRoute: () => AuthenticatedRoute,
 } as any)
 const AuthenticatedVendasIdRoute = AuthenticatedVendasIdRouteImport.update({
-  id: '/$id',
-  path: '/$id',
-  getParentRoute: () => AuthenticatedVendasRoute,
+  id: '/vendas_/$id',
+  path: '/vendas/$id',
+  getParentRoute: () => AuthenticatedRoute,
 } as any)
 
 export interface FileRoutesByFullPath {
@@ -99,7 +99,7 @@ export interface FileRoutesByFullPath {
   '/historico': typeof AuthenticatedHistoricoRoute
   '/mapa': typeof AuthenticatedMapaRoute
   '/produtos': typeof AuthenticatedProdutosRoute
-  '/vendas': typeof AuthenticatedVendasRouteWithChildren
+  '/vendas': typeof AuthenticatedVendasRoute
   '/vender': typeof AuthenticatedVenderRoute
   '/vendas/$id': typeof AuthenticatedVendasIdRoute
 }
@@ -113,7 +113,7 @@ export interface FileRoutesByTo {
   '/historico': typeof AuthenticatedHistoricoRoute
   '/mapa': typeof AuthenticatedMapaRoute
   '/produtos': typeof AuthenticatedProdutosRoute
-  '/vendas': typeof AuthenticatedVendasRouteWithChildren
+  '/vendas': typeof AuthenticatedVendasRoute
   '/vender': typeof AuthenticatedVenderRoute
   '/vendas/$id': typeof AuthenticatedVendasIdRoute
 }
@@ -129,9 +129,9 @@ export interface FileRoutesById {
   '/_authenticated/historico': typeof AuthenticatedHistoricoRoute
   '/_authenticated/mapa': typeof AuthenticatedMapaRoute
   '/_authenticated/produtos': typeof AuthenticatedProdutosRoute
-  '/_authenticated/vendas': typeof AuthenticatedVendasRouteWithChildren
+  '/_authenticated/vendas': typeof AuthenticatedVendasRoute
   '/_authenticated/vender': typeof AuthenticatedVenderRoute
-  '/_authenticated/vendas/$id': typeof AuthenticatedVendasIdRoute
+  '/_authenticated/vendas_/$id': typeof AuthenticatedVendasIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -176,7 +176,7 @@ export interface FileRouteTypes {
     | '/_authenticated/produtos'
     | '/_authenticated/vendas'
     | '/_authenticated/vender'
-    | '/_authenticated/vendas/$id'
+    | '/_authenticated/vendas_/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -271,26 +271,15 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedVenderRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
-    '/_authenticated/vendas/$id': {
-      id: '/_authenticated/vendas/$id'
-      path: '/$id'
+    '/_authenticated/vendas_/$id': {
+      id: '/_authenticated/vendas_/$id'
+      path: '/vendas/$id'
       fullPath: '/vendas/$id'
       preLoaderRoute: typeof AuthenticatedVendasIdRouteImport
-      parentRoute: typeof AuthenticatedVendasRoute
+      parentRoute: typeof AuthenticatedRoute
     }
   }
 }
-
-interface AuthenticatedVendasRouteChildren {
-  AuthenticatedVendasIdRoute: typeof AuthenticatedVendasIdRoute
-}
-
-const AuthenticatedVendasRouteChildren: AuthenticatedVendasRouteChildren = {
-  AuthenticatedVendasIdRoute: AuthenticatedVendasIdRoute,
-}
-
-const AuthenticatedVendasRouteWithChildren =
-  AuthenticatedVendasRoute._addFileChildren(AuthenticatedVendasRouteChildren)
 
 interface AuthenticatedRouteChildren {
   AuthenticatedCampanhasRoute: typeof AuthenticatedCampanhasRoute
@@ -300,8 +289,9 @@ interface AuthenticatedRouteChildren {
   AuthenticatedHistoricoRoute: typeof AuthenticatedHistoricoRoute
   AuthenticatedMapaRoute: typeof AuthenticatedMapaRoute
   AuthenticatedProdutosRoute: typeof AuthenticatedProdutosRoute
-  AuthenticatedVendasRoute: typeof AuthenticatedVendasRouteWithChildren
+  AuthenticatedVendasRoute: typeof AuthenticatedVendasRoute
   AuthenticatedVenderRoute: typeof AuthenticatedVenderRoute
+  AuthenticatedVendasIdRoute: typeof AuthenticatedVendasIdRoute
 }
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
@@ -312,8 +302,9 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedHistoricoRoute: AuthenticatedHistoricoRoute,
   AuthenticatedMapaRoute: AuthenticatedMapaRoute,
   AuthenticatedProdutosRoute: AuthenticatedProdutosRoute,
-  AuthenticatedVendasRoute: AuthenticatedVendasRouteWithChildren,
+  AuthenticatedVendasRoute: AuthenticatedVendasRoute,
   AuthenticatedVenderRoute: AuthenticatedVenderRoute,
+  AuthenticatedVendasIdRoute: AuthenticatedVendasIdRoute,
 }
 
 const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
