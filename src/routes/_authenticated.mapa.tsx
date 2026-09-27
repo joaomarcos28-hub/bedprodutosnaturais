@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
+import { useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useMyRole, useMyProfile } from "@/lib/auth";
 import { shortTime } from "@/lib/format";
@@ -59,19 +60,24 @@ function MapaPage() {
     refetchInterval: 10_000,
   });
 
+  // Memoizado: evita redesenhar o mapa quando nada mudou.
+  const markers = useMemo<MapMarker[]>(
+    () =>
+      (data?.latest ?? []).map((p, i) => ({
+        id: p.seller_id,
+        label: data?.names.get(p.seller_id) ?? "Vendedor",
+        lat: p.latitude,
+        lng: p.longitude,
+        color: palette[i % palette.length] ?? "#16a34a",
+        time: `Visto às ${shortTime(p.recorded_at)}`,
+      })),
+    [data],
+  );
+
   if (roleLoading || isLoading || !data) return <Spinner />;
   if (role === "seller") {
     return <p className="p-8 text-center text-sm text-muted-foreground">O mapa fica disponível para o dono e supervisores.</p>;
   }
-
-  const markers: MapMarker[] = data.latest.map((p, i) => ({
-    id: p.seller_id,
-    label: data.names.get(p.seller_id) ?? "Vendedor",
-    lat: p.latitude,
-    lng: p.longitude,
-    color: palette[i % palette.length] ?? "#16a34a",
-    time: `Visto às ${shortTime(p.recorded_at)}`,
-  }));
 
   return (
     <div className="space-y-4">

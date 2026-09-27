@@ -53,7 +53,7 @@ function VendasPage() {
     onSuccess: () => {
       toast.success("Venda excluída.");
       queryClient.invalidateQueries({ queryKey: ["sales"] });
-      queryClient.invalidateQueries({ queryKey: ["dashboard"] });
+      queryClient.invalidateQueries({ predicate: (q) => String(q.queryKey[0]).startsWith("dashboard") });
     },
     onError: (e: Error) => toast.error(e.message),
   });
