@@ -74,10 +74,10 @@ function MapaPage() {
     [data],
   );
 
-  if (roleLoading || isLoading || !data) return <Spinner />;
   if (role === "seller") {
     return <p className="p-8 text-center text-sm text-muted-foreground">O mapa fica disponível para o dono e supervisores.</p>;
   }
+  if (roleLoading || isLoading || !data) return <Spinner />;
 
   return (
     <div className="space-y-4">
