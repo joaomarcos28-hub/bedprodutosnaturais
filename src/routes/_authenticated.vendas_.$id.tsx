@@ -6,7 +6,7 @@ import { brl, formatDateTime, paymentLabel } from "@/lib/format";
 import { Badge, Card, CardContent, CardHeader, CardTitle, Spinner } from "@/components/ui";
 import { ArrowLeft, Camera, PenLine, MapPin } from "lucide-react";
 
-export const Route = createFileRoute("/_authenticated/vendas/$id")({
+export const Route = createFileRoute("/_authenticated/vendas_/$id")({
   head: () => ({
     meta: [
       { title: "Comprovante — B&D Produtos Naturais" },
