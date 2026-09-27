@@ -422,6 +422,7 @@ export type Database = {
         Args: { p_delta: number; p_note?: string; p_product_id: string }
         Returns: undefined
       }
+      clear_movements: { Args: never; Returns: number }
       delete_sale: { Args: { p_sale_id: string }; Returns: undefined }
       deliver_to_seller: {
         Args: { p_items: Json; p_seller_id: string }
