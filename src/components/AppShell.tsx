@@ -1,5 +1,6 @@
+import { useState } from "react";
 import { Link, useRouter } from "@tanstack/react-router";
-import { Leaf, LogOut, LayoutDashboard, Package, Users, Receipt, Flag, MapPin, History, Sparkles, ShoppingBag, type LucideIcon } from "lucide-react";
+import { Menu, X, Leaf, LogOut, LayoutDashboard, Package, Users, Receipt, Flag, MapPin, History, Sparkles, ShoppingBag, type LucideIcon } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "./ui";
 import { useMyProfile, useMyRole, useSession, type AppRole } from "@/lib/auth";
