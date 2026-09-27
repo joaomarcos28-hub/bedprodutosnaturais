@@ -226,7 +226,7 @@ function OwnerTeams() {
           <h1 className="font-display text-2xl font-semibold">Supervisores e equipes</h1>
           <p className="text-sm text-muted-foreground">Cada equipe tem um supervisor e seus vendedores</p>
         </div>
-        <div className="flex gap-2">
+        <div className="grid w-full grid-cols-1 gap-2 sm:flex sm:w-auto sm:flex-wrap">
           <Button variant="outline" onClick={() => setModal("supervisor")}>
             <UserPlus className="h-4 w-4" /> Novo supervisor
           </Button>
@@ -250,11 +250,11 @@ function OwnerTeams() {
           const members = data.profiles.filter((p) => p.team_id === t.id && p.id !== t.supervisor_id);
           return (
             <Card key={t.id}>
-              <CardHeader className="flex flex-row items-center justify-between gap-2">
-                <CardTitle className="flex items-center gap-2">
-                  <Users className="h-4 w-4 text-primary" /> {t.name}
+              <CardHeader className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
+                <CardTitle className="flex min-w-0 items-center gap-2">
+                  <Users className="h-4 w-4 shrink-0 text-primary" /> <span className="truncate">{t.name}</span>
                 </CardTitle>
-                <div className="flex gap-2">
+                <div className="flex flex-wrap gap-2">
                   <Button size="sm" variant="outline" onClick={() => setEditTeam(t)}>
                     <Pencil className="h-4 w-4" /> Editar
                   </Button>
