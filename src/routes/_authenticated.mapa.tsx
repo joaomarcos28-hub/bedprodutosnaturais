@@ -56,7 +56,7 @@ function MapaPage() {
 
       return { names, latest };
     },
-    refetchInterval: 15_000,
+    refetchInterval: 10_000,
   });
 
   if (roleLoading || isLoading || !data) return <Spinner />;
@@ -78,7 +78,7 @@ function MapaPage() {
       <div>
         <h1 className="font-display text-2xl font-semibold">Mapa da equipe</h1>
         <p className="text-sm text-muted-foreground">
-          Localização dos vendedores que autorizaram o compartilhamento. Atualiza a cada 15s.
+          Localização em tempo real dos vendedores com o app aberto. Atualiza a cada 10s.
         </p>
       </div>
 
