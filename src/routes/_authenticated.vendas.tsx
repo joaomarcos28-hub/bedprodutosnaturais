@@ -52,7 +52,8 @@ function VendasPage() {
     },
     onSuccess: () => {
       toast.success("Venda excluída.");
-      queryClient.invalidateQueries();
+      queryClient.invalidateQueries({ queryKey: ["sales"] });
+      queryClient.invalidateQueries({ queryKey: ["dashboard"] });
     },
     onError: (e: Error) => toast.error(e.message),
   });

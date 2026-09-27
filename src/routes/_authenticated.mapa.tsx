@@ -41,8 +41,8 @@ function MapaPage() {
       const [profiles, pings] = await Promise.all([
         profilesRes,
         role === "owner"
-          ? supabase.from("location_pings").select("*").gte("recorded_at", twelveHoursAgo).order("recorded_at", { ascending: false }).limit(500)
-          : supabase.from("location_pings").select("*").gte("recorded_at", twelveHoursAgo).order("recorded_at", { ascending: false }).limit(500),
+          ? supabase.from("location_pings").select("seller_id, latitude, longitude, recorded_at").gte("recorded_at", twelveHoursAgo).order("recorded_at", { ascending: false }).limit(500)
+          : supabase.from("location_pings").select("seller_id, latitude, longitude, recorded_at").gte("recorded_at", twelveHoursAgo).order("recorded_at", { ascending: false }).limit(500),
       ]);
       if (profiles.error || pings.error) throw new Error("Falha ao carregar o mapa.");
 

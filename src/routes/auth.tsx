@@ -1,4 +1,4 @@
-import bgAsset from "@/assets/bd-fundo.jpg.asset.json";
+import bgAsset from "@/assets/bd-fundo.webp.asset.json";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useState } from "react";
