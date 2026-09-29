@@ -454,6 +454,7 @@ function SupervisorTeam() {
   const [saleFor, setSaleFor] = useState<{ id: string; name: string } | null>(null);
   const [saleTotal, setSaleTotal] = useState("");
   const [salePay, setSalePay] = useState<"pix" | "dinheiro" | "prazo">("pix");
+  const [saleDue, setSaleDue] = useState("");
   const [salePhoto, setSalePhoto] = useState<File | null>(null);
   const [saleCustomer, setSaleCustomer] = useState("");
 
@@ -473,8 +474,12 @@ function SupervisorTeam() {
       };
       if (photoPath) args.p_photo = photoPath;
       if (saleCustomer.trim()) args.p_customer = saleCustomer.trim();
-      const { error } = await supabase.rpc("register_sale_for_seller", args);
+      if (salePay === "prazo" && !saleDue) throw new Error("Informe a data de vencimento.");
+      const { data: newId, error } = await supabase.rpc("register_sale_for_seller", args);
       if (error) throw error;
+      if (salePay === "prazo" && newId) {
+        await supabase.rpc("set_sale_due_date", { p_sale_id: newId as string, p_due: saleDue });
+      }
     },
     onSuccess: () => {
       toast.success("Venda registrada!");
@@ -591,6 +596,12 @@ function SupervisorTeam() {
                 </button>
               ))}
             </div>
+            {salePay === "prazo" && (
+              <div className="pt-2">
+                <Label>Vencimento</Label>
+                <input type="date" value={saleDue} onChange={(e) => setSaleDue(e.target.value)} className="h-11 w-full rounded-lg border border-border bg-background px-3 text-sm" />
+              </div>
+            )}
           </div>
           <div className="space-y-1.5">
             <Label>Cliente (opcional)</Label>

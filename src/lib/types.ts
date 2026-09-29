@@ -44,6 +44,8 @@ export interface Sale {
   day_number: number | null;
   photo_url: string | null;
   signature_url: string | null;
+  due_date?: string | null;
+  paid_at?: string | null;
   latitude: number | null;
   longitude: number | null;
   created_at: string;
