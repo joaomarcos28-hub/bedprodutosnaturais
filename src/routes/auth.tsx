@@ -6,7 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/lib/auth";
 import { ADMIN_EMAIL, ensureAdminAccount } from "@/lib/admin.functions";
 import { Button, Card, CardContent, Input, Label } from "@/components/ui";
-import { Leaf } from "lucide-react";
+import { Instagram, Leaf, Phone } from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/auth")({
@@ -62,12 +62,26 @@ function AuthPage() {
       className="relative flex min-h-screen items-end justify-center bg-background bg-cover bg-center bg-no-repeat px-4 pb-8 sm:items-center sm:pb-0 lg:justify-end lg:pr-[8vw]"
       style={{ backgroundImage: `url(${bgImage})` }}
     >
-      <div className="absolute left-4 right-4 top-6 rounded-3xl bg-card/75 p-4 text-center shadow-elegant backdrop-blur-sm sm:left-8 sm:right-auto sm:text-left lg:left-[6vw] lg:top-1/2 lg:-translate-y-1/2 lg:p-8">
-        <p className="font-display text-4xl font-bold text-primary lg:text-6xl">B&D</p>
-        <p className="font-display text-lg font-semibold text-primary lg:text-2xl">Produtos Naturais</p>
-        <div className="mt-2 space-y-0.5 text-sm font-semibold text-foreground lg:mt-4 lg:text-base">
-          <a href="https://wa.me/5582994003591" target="_blank" rel="noreferrer" className="block hover:underline">Fone (82) 99400-3591</a>
-          <a href="https://instagram.com/bdprodutos" target="_blank" rel="noreferrer" className="block hover:underline">Instagram @bdprodutos</a>
+      <div className="absolute left-4 right-4 top-6 overflow-hidden rounded-3xl border border-primary/15 bg-card/80 p-4 text-center shadow-elegant backdrop-blur-md sm:left-8 sm:right-auto sm:text-left lg:left-[6vw] lg:top-1/2 lg:-translate-y-1/2 lg:p-8">
+        <div className="absolute inset-x-0 top-0 h-1 bg-gradient-primary" />
+        <div className="flex items-center justify-center gap-3 sm:justify-start">
+          <span className="hidden h-12 w-12 items-center justify-center rounded-2xl bg-gradient-primary text-primary-foreground shadow-soft lg:flex">
+            <Leaf className="h-6 w-6" />
+          </span>
+          <div>
+            <p className="font-display text-3xl font-bold leading-none tracking-tight text-primary lg:text-5xl">B&D</p>
+            <p className="mt-1 text-xs font-semibold uppercase tracking-[0.25em] text-muted-foreground lg:text-sm">Produtos Naturais</p>
+          </div>
+        </div>
+        <div className="mt-3 flex flex-wrap justify-center gap-2 sm:justify-start lg:mt-5 lg:flex-col">
+          <a href="https://wa.me/5582994003591" target="_blank" rel="noreferrer" className="group inline-flex items-center gap-2 rounded-full bg-secondary px-3 py-1.5 text-sm font-semibold text-foreground transition hover:bg-primary hover:text-primary-foreground lg:px-4 lg:py-2">
+            <span className="flex h-6 w-6 items-center justify-center rounded-full bg-primary text-primary-foreground group-hover:bg-primary-foreground group-hover:text-primary"><Phone className="h-3.5 w-3.5" /></span>
+            (82) 99400-3591
+          </a>
+          <a href="https://instagram.com/bdprodutos" target="_blank" rel="noreferrer" className="group inline-flex items-center gap-2 rounded-full bg-secondary px-3 py-1.5 text-sm font-semibold text-foreground transition hover:bg-primary hover:text-primary-foreground lg:px-4 lg:py-2">
+            <span className="flex h-6 w-6 items-center justify-center rounded-full bg-primary text-primary-foreground group-hover:bg-primary-foreground group-hover:text-primary"><Instagram className="h-3.5 w-3.5" /></span>
+            @bdprodutos
+          </a>
         </div>
       </div>
 
