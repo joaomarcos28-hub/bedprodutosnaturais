@@ -107,10 +107,7 @@ function AuthPage() {
         <Card>
           <CardContent className="pt-5">
             <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="space-y-1.5">
-                <Label htmlFor="login">Usuário</Label>
-                <Input id="login" value={loginId} onChange={(e) => setLoginId(e.target.value)} placeholder="admin (deixe vazio para o dono)" autoComplete="username" />
-              </div>
+
               <div className="space-y-1.5">
                 <Label htmlFor="password">Senha</Label>
                 <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required autoFocus autoComplete="current-password" placeholder="Sua senha de acesso" />
