@@ -58,9 +58,9 @@
   --card-foreground: oklch(0.24 0.035 158);
   --popover: oklch(0.997 0.004 95);
   --popover-foreground: oklch(0.24 0.035 158);
-  --primary: oklch(0.38 0.17 145);
-  --primary-glow: oklch(0.55 0.20 142);
-  --primary-foreground: oklch(0.985 0.01 100);
+  --primary: oklch(0.52 0.22 25);
+  --primary-glow: oklch(0.65 0.24 25);
+  --primary-foreground: oklch(0.985 0.008 20);
   --secondary: oklch(0.92 0.045 115);
   --secondary-foreground: oklch(0.3 0.06 160);
   --muted: oklch(0.95 0.014 100);
@@ -76,7 +76,7 @@
   --warning-foreground: oklch(0.3 0.05 70);
   --border: oklch(0.88 0.03 95);
   --input: oklch(0.88 0.02 110);
-  --ring: oklch(0.42 0.14 148);
+  --ring: oklch(0.55 0.22 25);
   --gradient-primary: linear-gradient(135deg, var(--primary), var(--primary-glow));
   --leaf-pattern: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120' viewBox='0 0 120 120'%3E%3Cg fill='none' stroke='%23537a4f' stroke-opacity='0.07' stroke-width='1.5'%3E%3Cpath d='M20 60c10-22 30-28 40-26-2 14-14 32-40 26zM20 60l40-26'/%3E%3Cpath d='M78 100c6-14 20-18 26-16-2 9-9 20-26 16zM78 100l26-16'/%3E%3C/g%3E%3C/svg%3E");
   --gradient-hero: radial-gradient(1200px 400px at 10% -10%, oklch(0.95 0.025 142 / 0.6), transparent 60%), radial-gradient(900px 300px at 100% 0%, oklch(0.96 0.02 92 / 0.5), transparent 60%);
@@ -96,8 +96,8 @@
   --card-foreground: oklch(0.95 0.01 115);
   --popover: oklch(0.27 0.035 152);
   --popover-foreground: oklch(0.95 0.01 115);
-  --primary: oklch(0.72 0.18 145);
-  --primary-foreground: oklch(0.15 0.04 150);
+  --primary: oklch(0.62 0.22 25);
+  --primary-foreground: oklch(0.985 0.008 20);
   --secondary: oklch(0.33 0.04 152);
   --secondary-foreground: oklch(0.95 0.01 115);
   --muted: oklch(0.33 0.04 152);
