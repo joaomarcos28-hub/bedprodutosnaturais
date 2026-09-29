@@ -19,12 +19,7 @@ export const ensureAdminAccount = createServerFn({ method: "POST" }).handler(asy
 
   if (error || !created.user) {
     // Já existe: nada a fazer.
-    if (error && /already|registered|exists/i.test(error.message)) {
-      const { data } = await supabaseAdmin.auth.admin.listUsers({ perPage: 1000 });
-      const u = data.users.find((x) => x.email === ADMIN_EMAIL);
-      if (u) { const r = await supabaseAdmin.auth.admin.updateUserById(u.id, { password: INITIAL_PASSWORD }); if (r.error) console.error("SYNCPW", r.error.message); }
-      return { ok: true };
-    }
+    if (error && /already|registered|exists/i.test(error.message)) return { ok: true };
     console.error("ensureAdminAccount:", error);
     return { ok: false, reason: error?.message ?? "unknown" };
   }
