@@ -129,8 +129,8 @@
   }
 
   body {
-    background-image: var(--gradient-hero), var(--leaf-pattern);
-    background-repeat: no-repeat, repeat;
+    background-image: var(--gradient-hero);
+    background-repeat: no-repeat;
   }
 
   html { -webkit-tap-highlight-color: transparent; scroll-behavior: smooth; }
