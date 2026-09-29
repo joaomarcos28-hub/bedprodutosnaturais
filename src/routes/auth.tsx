@@ -24,8 +24,7 @@ export const Route = createFileRoute("/auth")({
 });
 
 function AuthPage() {
-  const [mode, setMode] = useState<"admin" | "team">("admin");
-  const [email, setEmail] = useState("");
+  const [loginId, setLoginId] = useState("");
   const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
   const navigate = useNavigate();
@@ -40,10 +39,20 @@ function AuthPage() {
     e.preventDefault();
     setBusy(true);
     try {
-      if (mode === "admin") await ensureAdmin();
-      const loginEmail = mode === "admin" ? ADMIN_EMAIL : email.trim();
+      await ensureAdmin();
+      const inputVal = loginId.trim();
+      let targetEmail = inputVal;
+      
+      if (!inputVal.includes("@")) {
+        if (inputVal.toLowerCase() === "admin" || inputVal === "") {
+          targetEmail = "admin@bdnaturais.com";
+        } else {
+          targetEmail = `${inputVal.toLowerCase().replace(/\s+/g, "_")}@bdnaturais.com`;
+        }
+      }
+
       const { error } = await supabase.auth.signInWithPassword({
-        email: loginEmail,
+        email: targetEmail,
         password,
       });
       if (error) {
