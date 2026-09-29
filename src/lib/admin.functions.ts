@@ -2,8 +2,6 @@ import { createServerFn } from "@tanstack/react-start";
 
 export const ADMIN_EMAIL = "bed@bed-produtos.app";
 const INITIAL_PASSWORD = "Padrao";
-  return { ok: !error, reason: error?.message ?? null };
-});
 
 /**
  * Garante que a conta do administrador "B&D" exista.
