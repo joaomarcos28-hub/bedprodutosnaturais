@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link, useRouter } from "@tanstack/react-router";
 import { Menu, X, Leaf, LogOut, LayoutDashboard, Package, Users, Receipt, Flag, MapPin, History, Sparkles, ShoppingBag, type LucideIcon } from "lucide-react";
+import { DevCredit } from "./DevCredit";
 import { toast } from "sonner";
 import { Button } from "./ui";
 import { useMyProfile, useMyRole, useSession, type AppRole } from "@/lib/auth";
@@ -97,7 +98,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
       </header>
 
-      <main className="animate-in fade-in slide-in-from-bottom-1 duration-300 mx-auto max-w-6xl px-4 pb-10 pt-6 sm:px-6 md:pt-8">{children}</main>
+      <main className="animate-in fade-in slide-in-from-bottom-1 duration-300 mx-auto max-w-6xl px-4 pb-10 pt-6 sm:px-6 md:pt-8">{children}<DevCredit className="mt-8" /></main>
 
       {menuOpen && (
         <div className="fixed inset-0 z-50 md:hidden">
