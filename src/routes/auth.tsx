@@ -1,4 +1,4 @@
-import bgAsset from "@/assets/bd-fundo.webp.asset.json";
+import bgImage from "@/assets/natural-bg.jpg";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useState } from "react";
@@ -59,8 +59,8 @@ function AuthPage() {
 
   return (
     <div
-      className="relative flex min-h-screen items-end justify-center bg-background bg-cover bg-center bg-no-repeat px-4 pb-8 lg:bg-[length:auto_100%] lg:bg-left sm:items-center sm:pb-0 lg:justify-end lg:pr-[8vw]"
-      style={{ backgroundImage: `url(${bgAsset.url})` }}
+      className="relative flex min-h-screen items-end justify-center bg-background bg-cover bg-center bg-no-repeat px-4 pb-8 sm:items-center sm:pb-0 lg:justify-end lg:pr-[8vw]"
+      style={{ backgroundImage: `url(${bgImage})` }}
     >
       <div className="relative w-full max-w-md rounded-3xl bg-card/80 p-6 shadow-elegant backdrop-blur-md">
         <div className="mb-6 flex flex-col items-center gap-2 text-center">

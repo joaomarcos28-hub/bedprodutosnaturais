@@ -53,11 +53,11 @@
   --font-body: "Nunito Sans", ui-sans-serif, system-ui, sans-serif;
 
   --background: oklch(0.965 0.022 88);
-  --foreground: oklch(0.3 0.12 145);
+  --foreground: oklch(0.38 0.13 150);
   --card: oklch(0.99 0.012 90);
-  --card-foreground: oklch(0.24 0.035 158);
+  --card-foreground: oklch(0.38 0.13 150);
   --popover: oklch(0.997 0.004 95);
-  --popover-foreground: oklch(0.24 0.035 158);
+  --popover-foreground: oklch(0.38 0.13 150);
   --primary: oklch(0.52 0.22 25);
   --primary-glow: oklch(0.65 0.24 25);
   --primary-foreground: oklch(0.985 0.008 20);
