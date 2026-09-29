@@ -53,18 +53,18 @@
   --font-body: "Nunito Sans", ui-sans-serif, system-ui, sans-serif;
 
   --background: oklch(0.965 0.022 88);
-  --foreground: oklch(0.3 0.12 145);
+  --foreground: oklch(0.38 0.13 150);
   --card: oklch(0.99 0.012 90);
-  --card-foreground: oklch(0.24 0.035 158);
+  --card-foreground: oklch(0.38 0.13 150);
   --popover: oklch(0.997 0.004 95);
-  --popover-foreground: oklch(0.24 0.035 158);
+  --popover-foreground: oklch(0.38 0.13 150);
   --primary: oklch(0.52 0.22 25);
   --primary-glow: oklch(0.65 0.24 25);
   --primary-foreground: oklch(0.985 0.008 20);
   --secondary: oklch(0.92 0.045 115);
   --secondary-foreground: oklch(0.3 0.06 160);
   --muted: oklch(0.95 0.014 100);
-  --muted-foreground: oklch(0.48 0.028 155);
+  --muted-foreground: oklch(0.45 0.09 150);
   --accent: oklch(0.9 0.06 85);
   --accent-foreground: oklch(0.35 0.07 60);
   --gold: oklch(0.72 0.13 75);
