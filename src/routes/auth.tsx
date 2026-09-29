@@ -24,7 +24,7 @@ export const Route = createFileRoute("/auth")({
 });
 
 function AuthPage() {
-  const mode = "admin" as "admin" | "team";
+  const [mode, setMode] = useState<"admin" | "team">("admin");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
@@ -41,8 +41,9 @@ function AuthPage() {
     setBusy(true);
     try {
       if (mode === "admin") await ensureAdmin();
+      const loginEmail = mode === "admin" ? ADMIN_EMAIL : email.trim();
       const { error } = await supabase.auth.signInWithPassword({
-        email: mode === "admin" ? ADMIN_EMAIL : email,
+        email: loginEmail,
         password,
       });
       if (error) {
@@ -96,16 +97,33 @@ function AuthPage() {
 
         <Card>
           <CardContent className="pt-5">
+            <div className="mb-4 flex rounded-lg bg-secondary p-1">
+              <button
+                type="button"
+                onClick={() => { setMode("admin"); }}
+                className={`flex-1 rounded-md py-2 text-xs font-semibold transition ${mode === "admin" ? "bg-primary text-primary-foreground shadow" : "text-muted-foreground hover:text-foreground"}`}
+              >
+                Administrador
+              </button>
+              <button
+                type="button"
+                onClick={() => { setMode("team"); }}
+                className={`flex-1 rounded-md py-2 text-xs font-semibold transition ${mode === "team" ? "bg-primary text-primary-foreground shadow" : "text-muted-foreground hover:text-foreground"}`}
+              >
+                Equipe (Vendedor / Supervisor)
+              </button>
+            </div>
+
             <form onSubmit={handleSubmit} className="space-y-4">
-              {mode === "admin" ? null : (
+              {mode === "team" && (
                 <div className="space-y-1.5">
-                  <Label htmlFor="email">E-mail</Label>
-                  <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required placeholder="voce@exemplo.com" autoComplete="email" />
+                  <Label htmlFor="email">E-mail de acesso</Label>
+                  <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required placeholder="seu.email@exemplo.com" autoComplete="email" />
                 </div>
               )}
               <div className="space-y-1.5">
                 <Label htmlFor="password">Senha</Label>
-                <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required autoFocus autoComplete="current-password" />
+                <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required autoFocus autoComplete="current-password" placeholder="Sua senha de acesso" />
               </div>
               <Button type="submit" className="w-full" disabled={busy}>
                 {busy ? "Entrando…" : "Entrar"}
