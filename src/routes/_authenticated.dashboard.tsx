@@ -76,7 +76,7 @@ function OwnerDashboard() {
         supabase.from("seller_stock").select("quantity"),
         supabase.from("sales").select("total").gte("created_at", t),
         supabase.from("teams").select("id"),
-        supabase.from("profiles").select("id, role"),
+        supabase.from("user_roles").select("user_id, role"),
         supabase.from("campaigns").select("id").eq("status", "ativa"),
       ]);
 
@@ -86,14 +86,14 @@ function OwnerDashboard() {
       const sellerUnits = stock.data.reduce((s, r) => s + r.quantity, 0);
       const totalSales = salesToday.data.reduce((s, r) => s + Number(r.total), 0);
       const lowStockCount = products.data.filter((p) => p.central_stock <= p.low_stock_threshold).length;
-      const sellersCount = profiles.data.filter((p) => p.role === "seller").length;
+      const sellersCount = (profiles.data ?? []).filter((p) => p.role === "seller").length;
 
       return {
         centralUnits,
         sellerUnits,
         totalSales,
         lowStockCount,
-        teamsCount: teams.data.length,
+        teamsCount: teams.data?.length ?? 0,
         sellersCount,
         campaignsCount: campaigns.data?.length ?? 0,
       };
@@ -213,7 +213,7 @@ function SupervisorDashboard() {
           {data?.members.map((m) => (
             <div key={m.id} className="flex items-center justify-between rounded-lg bg-secondary/60 px-3 py-2">
               <span className="text-sm font-medium">{m.full_name || "Vendedor sem nome"}</span>
-              <Badge variant="outline">Ativo</Badge>
+              <Badge className="border border-border">Ativo</Badge>
             </div>
           ))}
         </CardContent>
