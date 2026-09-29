@@ -45,7 +45,7 @@ function AuthPage() {
       
       if (!inputVal.includes("@")) {
         if (inputVal.toLowerCase() === "admin" || inputVal === "") {
-          targetEmail = "admin@bdnaturais.com";
+          targetEmail = ADMIN_EMAIL;
         } else {
           targetEmail = `${inputVal.toLowerCase().replace(/\s+/g, "_")}@bdnaturais.com`;
         }
@@ -106,30 +106,11 @@ function AuthPage() {
 
         <Card>
           <CardContent className="pt-5">
-            <div className="mb-4 flex rounded-lg bg-secondary p-1">
-              <button
-                type="button"
-                onClick={() => { setMode("admin"); }}
-                className={`flex-1 rounded-md py-2 text-xs font-semibold transition ${mode === "admin" ? "bg-primary text-primary-foreground shadow" : "text-muted-foreground hover:text-foreground"}`}
-              >
-                Administrador
-              </button>
-              <button
-                type="button"
-                onClick={() => { setMode("team"); }}
-                className={`flex-1 rounded-md py-2 text-xs font-semibold transition ${mode === "team" ? "bg-primary text-primary-foreground shadow" : "text-muted-foreground hover:text-foreground"}`}
-              >
-                Equipe (Vendedor / Supervisor)
-              </button>
-            </div>
-
             <form onSubmit={handleSubmit} className="space-y-4">
-              {mode === "team" && (
-                <div className="space-y-1.5">
-                  <Label htmlFor="email">E-mail de acesso</Label>
-                  <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required placeholder="seu.email@exemplo.com" autoComplete="email" />
-                </div>
-              )}
+              <div className="space-y-1.5">
+                <Label htmlFor="login">Usuário</Label>
+                <Input id="login" value={loginId} onChange={(e) => setLoginId(e.target.value)} placeholder="admin (deixe vazio para o dono)" autoComplete="username" />
+              </div>
               <div className="space-y-1.5">
                 <Label htmlFor="password">Senha</Label>
                 <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required autoFocus autoComplete="current-password" placeholder="Sua senha de acesso" />
