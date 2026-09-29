@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useMyRole, useMyProfile, useMyTeam } from "@/lib/auth";
 import { brl, formatDateTime } from "@/lib/format";
@@ -55,230 +56,147 @@ function OwnerDashboard() {
     queryKey: ["dashboard-owner"],
     queryFn: async () => {
       const t = startOfToday();
-      const since = new Date(Date.now() - 13 * 86400000); since.setHours(0, 0, 0, 0);
-      const [products, stock, salesToday, teams, profiles, campaigns, itemsToday, topItems, recent] = await Promise.all([
+      const [products, stock, salesToday, teams, profiles, campaigns] = await Promise.all([
         supabase.from("products").select("id, name, central_stock, low_stock_threshold, sale_price"),
         supabase.from("seller_stock").select("quantity"),
         supabase.from("sales").select("total").gte("created_at", t),
         supabase.from("teams").select("id"),
-        supabase.from("profiles").select("id, team_id"),
+        supabase.from("profiles").select("id, role"),
         supabase.from("campaigns").select("id").eq("status", "ativa"),
-        supabase.from("sale_items").select("quantity, sales!inner(created_at)").gte("sales.created_at", t),
-        supabase.from("sale_items").select("quantity, product:products(name)").order("quantity", { ascending: false }).limit(500),
-        supabase.from("sales").select("total, created_at").gte("created_at", since.toISOString()),
       ]);
-      if (products.error || stock.error || salesToday.error || teams.error || profiles.error || campaigns.error || itemsToday.error || topItems.error || recent.error) {
-        throw new Error("Falha ao carregar o painel.");
-      }
-      return { products: products.data!, stock: stock.data!, salesToday: salesToday.data!, teams: teams.data!, profiles: profiles.data!, campaigns: campaigns.data!, itemsToday: itemsToday.data!, topItems: topItems.data!, recent: recent.data! };
+
+      if (products.error || stock.error || salesToday.error) throw new Error("Falha ao carregar dashboard.");
+
+      const centralUnits = products.data.reduce((s, p) => s + p.central_stock, 0);
+      const sellerUnits = stock.data.reduce((s, r) => s + r.quantity, 0);
+      const totalSales = salesToday.data.reduce((s, r) => s + Number(r.total), 0);
+      const lowStockCount = products.data.filter((p) => p.central_stock <= p.low_stock_threshold).length;
+      const sellersCount = profiles.data.filter((p) => p.role === "seller").length;
+
+      return {
+        centralUnits,
+        sellerUnits,
+        totalSales,
+        lowStockCount,
+        teamsCount: teams.data.length,
+        sellersCount,
+        campaignsCount: campaigns.data?.length ?? 0,
+      };
     },
-    refetchInterval: 30_000,
+    refetchInterval: 20_000,
   });
 
   if (isLoading || !data) return <Spinner />;
 
-  const totalCentral = data.products.reduce((s, p) => s + p.central_stock, 0);
-  const totalField = data.stock.reduce((s, r) => s + r.quantity, 0);
-  const vendasHoje = data.salesToday.reduce((s, r) => s + Number(r.total), 0);
-  const vendidosHoje = data.itemsToday.reduce((s, r) => s + r.quantity, 0);
-  const sellers = data.profiles.filter((p) => p.team_id !== null).length;
-  const low = data.products.filter((p) => p.central_stock <= p.low_stock_threshold);
-
-  const topProducts = new Map<string, number>();
-  data.topItems.forEach((i) => {
-    const name = (i.product as { name: string } | null)?.name ?? "Produto removido";
-    topProducts.set(name, (topProducts.get(name) ?? 0) + i.quantity);
-  });
-  const best = [...topProducts.entries()].sort((a, b) => b[1] - a[1]).slice(0, 5);
-
   return (
     <div className="space-y-6">
       <div>
-        <p className="text-sm font-medium text-primary">Olá, Administrador</p>
-        <h1 className="font-display text-3xl font-semibold">Dashboard geral</h1>
-        <p className="text-sm text-muted-foreground">Visão completa da operação</p>
+        <h1 className="font-display text-2xl font-semibold">Painel do Dono</h1>
+        <p className="text-sm text-muted-foreground">Visão geral da operação B&amp;D Produtos Naturais</p>
       </div>
 
-      <SalesChart sales={data.recent} />
-
-      <div className="grid grid-cols-2 gap-3 md:grid-cols-3">
-        <Stat icon={<Boxes className="h-5 w-5" />} label="Estoque central" value={`${totalCentral} un.`} />
-        <Stat icon={<Truck className="h-5 w-5" />} label="Estoque em campo" value={`${totalField} un.`} tone="bg-accent text-accent-foreground" />
-        <Stat icon={<Coins className="h-5 w-5" />} label="Vendas hoje" value={brl(vendasHoje)} tone="bg-success text-success-foreground" />
-        <Stat icon={<PackageCheck className="h-5 w-5" />} label="Produtos vendidos hoje" value={`${vendidosHoje}`} />
-        <Stat icon={<Users className="h-5 w-5" />} label="Supervisores" value={`${data.teams.length}`} />
-        <Stat icon={<Truck className="h-5 w-5" />} label="Vendedores em campo" value={`${sellers}`} />
-        <Stat icon={<TrendingUp className="h-5 w-5" />} label="Campanhas ativas" value={`${data.campaigns.length}`} />
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+        <Stat icon={<HandCoins className="h-5 w-5" />} label="Vendas hoje" value={brl(data.totalSales)} tone="bg-success text-success-foreground" />
+        <Stat icon={<Boxes className="h-5 w-5" />} label="Estoque central" value={`${data.centralUnits} un.`} />
+        <Stat icon={<Truck className="h-5 w-5" />} label="Estoque com vendedores" value={`${data.sellerUnits} un.`} />
+        <Stat icon={<Users className="h-5 w-5" />} label="Vendedores ativos" value={String(data.sellersCount)} />
       </div>
 
       <div className="grid gap-4 md:grid-cols-2">
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <AlertTriangle className="h-4 w-4 text-warning" /> Estoque baixo
+              <AlertTriangle className="h-5 w-5 text-warning" />
+              Alertas
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-2">
-            {low.length === 0 && <p className="text-sm text-muted-foreground">Nenhum produto abaixo do mínimo. Tudo em ordem!</p>}
-            {low.map((p) => (
-              <div key={p.id} className="flex items-center justify-between rounded-lg bg-warning/10 px-3 py-2">
-                <span className="text-sm font-medium">{p.name}</span>
-                <Badge className="bg-warning text-warning-foreground">{p.central_stock} un.</Badge>
+          <CardContent className="space-y-3">
+            {data.lowStockCount > 0 ? (
+              <div className="flex items-center justify-between rounded-xl bg-destructive/10 p-3 text-destructive">
+                <span className="text-sm font-medium">{data.lowStockCount} produto(s) com estoque baixo no central</span>
+                <Link to="/produtos" className="text-xs underline font-semibold">Ver produtos</Link>
               </div>
-            ))}
-            <Link to="/produtos" className="block pt-1 text-sm font-medium text-primary hover:underline">
-              Gerenciar produtos →
-            </Link>
+            ) : (
+              <p className="text-sm text-muted-foreground">Nenhum alerta crítico no momento.</p>
+            )}
+            <div className="flex items-center justify-between rounded-xl bg-secondary/50 p-3">
+              <span className="text-sm font-medium">Campanhas ativas</span>
+              <span className="text-sm font-bold">{data.campaignsCount}</span>
+            </div>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <TrendingUp className="h-4 w-4 text-primary" /> Mais vendidos
-            </CardTitle>
+            <CardTitle>Ações Rápidas</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-2">
-            {best.length === 0 && <p className="text-sm text-muted-foreground">Ainda não há vendas registradas.</p>}
-            {best.map(([name, qty]) => (
-              <div key={name} className="flex items-center justify-between px-1 py-1">
-                <span className="text-sm">{name}</span>
-                <Badge className="bg-secondary text-secondary-foreground">{qty} vendidos</Badge>
-              </div>
-            ))}
-            <Link to="/vendas" className="block pt-1 text-sm font-medium text-primary hover:underline">
-              Ver todas as vendas →
+          <CardContent className="grid grid-cols-2 gap-2">
+            <Link to="/produtos" className="flex flex-col items-center justify-center rounded-xl bg-secondary/55 p-4 text-center transition-colors hover:bg-secondary">
+              <Boxes className="mb-2 h-5 w-5 text-primary" />
+              <span className="text-xs font-semibold">Produtos</span>
+            </Link>
+            <Link to="/equipe" className="flex flex-col items-center justify-center rounded-xl bg-secondary/55 p-4 text-center transition-colors hover:bg-secondary">
+              <Users className="mb-2 h-5 w-5 text-primary" />
+              <span className="text-xs font-semibold">Equipes</span>
+            </Link>
+            <Link to="/vendas" className="flex flex-col items-center justify-center rounded-xl bg-secondary/55 p-4 text-center transition-colors hover:bg-secondary">
+              <HandCoins className="mb-2 h-5 w-5 text-primary" />
+              <span className="text-xs font-semibold">Vendas</span>
+            </Link>
+            <Link to="/mapa" className="flex flex-col items-center justify-center rounded-xl bg-secondary/55 p-4 text-center transition-colors hover:bg-secondary">
+              <MapPin className="mb-2 h-5 w-5 text-primary" />
+              <span className="text-xs font-semibold">Mapa</span>
             </Link>
           </CardContent>
         </Card>
       </div>
-
-      <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-        <QuickLink to="/produtos" icon={<Boxes className="h-5 w-5" />} label="Produtos e estoque" />
-        <QuickLink to="/equipe" icon={<Users className="h-5 w-5" />} label="Supervisores e equipes" />
-        <QuickLink to="/mapa" icon={<MapPin className="h-5 w-5" />} label="Mapa das equipes" />
-        <QuickLink to="/historico" icon={<ArrowLeftRight className="h-5 w-5" />} label="Histórico" />
-      </div>
     </div>
-  );
-}
-
-function SalesChart({ sales }: { sales: { total: number; created_at: string }[] }) {
-  const days = Array.from({ length: 14 }, (_, i) => {
-    const d = new Date(); d.setHours(0, 0, 0, 0); d.setDate(d.getDate() - (13 - i));
-    return d;
-  });
-  const totals = days.map((d) => {
-    const key = d.toDateString();
-    return sales.filter((s) => new Date(s.created_at).toDateString() === key).reduce((a, s) => a + Number(s.total), 0);
-  });
-  const max = Math.max(...totals, 1);
-  const sum = totals.reduce((a, b) => a + b, 0);
-  return (
-    <Card>
-      <CardHeader className="flex-row items-end justify-between">
-        <div>
-          <CardTitle>Vendas dos últimos 14 dias</CardTitle>
-          <p className="text-sm text-muted-foreground">Total no período</p>
-        </div>
-        <p className="font-display text-2xl font-semibold">{brl(sum)}</p>
-      </CardHeader>
-      <CardContent>
-        <div className="flex h-40 items-end gap-1.5">
-          {totals.map((t, i) => (
-            <div key={i} className="group flex h-full flex-1 flex-col items-center justify-end gap-1">
-              <div
-                title={`${days[i]!.toLocaleDateString("pt-BR")}: ${brl(t)}`}
-                className="w-full rounded-t-md bg-gradient-primary opacity-80 transition-opacity group-hover:opacity-100"
-                style={{ height: `${Math.max((t / max) * 100, t > 0 ? 4 : 1.5)}%` }}
-              />
-              <span className="text-[10px] text-muted-foreground">{days[i]!.getDate()}</span>
-            </div>
-          ))}
-        </div>
-      </CardContent>
-    </Card>
-  );
-}
-
-function QuickLink({ to, icon, label }: { to: string; icon: React.ReactNode; label: string }) {
-  return (
-    <Link to={to} className="flex items-center gap-3 rounded-xl border border-border bg-card p-4 shadow-sm transition-colors hover:bg-accent">
-      <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-secondary text-secondary-foreground">{icon}</span>
-      <span className="text-sm font-medium">{label}</span>
-    </Link>
   );
 }
 
 function SupervisorDashboard() {
   const { data: profile } = useMyProfile();
   const { data: team } = useMyTeam();
-  const teamId = profile?.team_id ?? null;
 
   const { data, isLoading } = useQuery({
-    queryKey: ["dashboard-supervisor", teamId],
-    enabled: !!teamId,
+    queryKey: ["dashboard-supervisor", team?.id],
+    enabled: !!team?.id,
     queryFn: async () => {
       const t = startOfToday();
-      const [members, stock, products, salesToday] = await Promise.all([
-        supabase.from("profiles").select("id, full_name").eq("team_id", teamId!),
-        supabase.from("seller_stock").select("quantity, product_id"),
-        supabase.from("products").select("id, sale_price, central_stock"),
-        supabase.from("sales").select("total").gte("created_at", t),
+      const [members, sales] = await Promise.all([
+        supabase.from("profiles").select("id, full_name").eq("team_id", team!.id),
+        supabase.from("sales").select("total, seller_id").gte("created_at", t),
       ]);
-      if (members.error || stock.error || products.error || salesToday.error) throw new Error("Falha ao carregar.");
-      return { members: members.data!, stock: stock.data!, products: products.data!, salesToday: salesToday.data! };
+
+      return { members: members.data ?? [], sales: sales.data ?? [] };
     },
-    refetchInterval: 30_000,
   });
 
-  if (!teamId) {
-    return (
-      <Card>
-        <CardContent className="p-8 text-center text-sm text-muted-foreground">
-          Você ainda não está vinculado a uma equipe. Peça ao dono para vincular sua conta a uma equipe.
-        </CardContent>
-      </Card>
-    );
-  }
-  if (isLoading || !data) return <Spinner />;
-
-  const priceById = new Map(data.products.map((p) => [p.id, Number(p.sale_price)]));
-  const stockUnits = data.stock.reduce((s, r) => s + r.quantity, 0);
-  const stockValue = data.stock.reduce((s, r) => s + r.quantity * (priceById.get(r.product_id) ?? 0), 0);
-  const vendasHoje = data.salesToday.reduce((s, r) => s + Number(r.total), 0);
+  if (isLoading) return <Spinner />;
 
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="font-display text-2xl font-semibold">Painel do supervisor</h1>
-        <p className="text-sm text-muted-foreground">Equipe: {team?.name ?? "—"}</p>
-        <Badge className="mt-2 bg-secondary text-secondary-foreground">Perfil: Supervisor · Modo visualização</Badge>
+        <h1 className="font-display text-2xl font-semibold">Painel do Supervisor</h1>
+        <p className="text-sm text-muted-foreground">Equipe: {team?.name ?? "Sua equipe"}</p>
       </div>
 
-      <div className="grid grid-cols-2 gap-3 md:grid-cols-3">
-        <Stat icon={<Users className="h-5 w-5" />} label="Funcionários" value={`${data.members.length}`} />
-        <Stat icon={<Boxes className="h-5 w-5" />} label="Unidades em campo" value={`${stockUnits}`} />
-        <Stat icon={<Coins className="h-5 w-5" />} label="Valor do estoque" value={brl(stockValue)} tone="bg-accent text-accent-foreground" />
-        <Stat icon={<HandCoins className="h-5 w-5" />} label="Vendas de hoje" value={brl(vendasHoje)} tone="bg-success text-success-foreground" />
-        <Stat icon={<Boxes className="h-5 w-5" />} label="Produtos no catálogo" value={`${data.products.length}`} />
+      <div className="grid grid-cols-2 gap-3">
+        <Stat icon={<Users className="h-5 w-5" />} label="Vendedores na equipe" value={String(data?.members.length ?? 0)} />
+        <Stat icon={<HandCoins className="h-5 w-5" />} label="Vendas hoje da equipe" value={brl(data?.sales.reduce((s, r) => s + Number(r.total), 0) ?? 0)} tone="bg-success text-success-foreground" />
       </div>
 
       <Card>
         <CardHeader>
-          <CardTitle>Equipe {team?.name}</CardTitle>
+          <CardTitle>Membros da Equipe</CardTitle>
         </CardHeader>
         <CardContent className="space-y-2">
-          {data.members.length === 0 && <p className="text-sm text-muted-foreground">Nenhum vendedor na equipe ainda.</p>}
-          {data.members.map((m) => (
+          {data?.members.map((m) => (
             <div key={m.id} className="flex items-center justify-between rounded-lg bg-secondary/60 px-3 py-2">
-              <span className="text-sm font-medium">{m.full_name}</span>
-              <Badge className="bg-card text-muted-foreground">vendedor</Badge>
+              <span className="text-sm font-medium">{m.full_name || "Vendedor sem nome"}</span>
+              <Badge variant="outline">Ativo</Badge>
             </div>
           ))}
-          <Link to="/equipe" className="block pt-1 text-sm font-medium text-primary hover:underline">
-            Entregar estoque e acompanhar vendedores →
-          </Link>
         </CardContent>
       </Card>
     </div>
@@ -287,18 +205,17 @@ function SupervisorDashboard() {
 
 function SellerDashboard() {
   const { data: profile } = useMyProfile();
-  const uid = profile?.id;
 
   const { data, isLoading } = useQuery({
-    queryKey: ["dashboard-seller", uid],
-    enabled: !!uid,
+    queryKey: ["dashboard-seller"],
     queryFn: async () => {
       const t = startOfToday();
       const [stock, salesToday] = await Promise.all([
-        supabase.from("seller_stock").select("quantity, product:products(id, name, sale_price)").gt("quantity", 0),
-        supabase.from("sales").select("total, created_at").eq("seller_id", uid!).gte("created_at", t),
+        supabase.from("seller_stock").select("quantity, product:products(name, sale_price)"),
+        supabase.from("sales").select("total").gte("created_at", t),
       ]);
-      if (stock.error || salesToday.error) throw new Error("Falha ao carregar.");
+
+      if (stock.error || salesToday.error) throw new Error("Erro ao carregar dados.");
       return { stock: stock.data!, salesToday: salesToday.data! };
     },
     refetchInterval: 20_000,
