@@ -1,11 +1,26 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useMyRole, useMyProfile, useMyTeam } from "@/lib/auth";
 import { brl, formatDateTime } from "@/lib/format";
 import { Badge, Card, CardContent, CardHeader, CardTitle, Spinner } from "@/components/ui";
-import { AlertTriangle, ArrowLeftRight, Boxes, Coins, HandCoins, MapPin, PackageCheck, TrendingUp, Truck, Users } from "lucide-react";
+import { AlertTriangle, ArrowLeftRight, Boxes, Clock, Coins, HandCoins, Instagram, Leaf, MapPin, PackageCheck, Phone, TrendingUp, Truck, Users } from "lucide-react";
+
+function StoreInfo() {
+  return (
+    <Card>
+      <CardContent className="grid gap-3 p-4 sm:grid-cols-4 sm:items-center">
+        <div className="flex items-center gap-2">
+          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary text-primary-foreground"><Leaf className="h-5 w-5" /></span>
+          <p className="font-display font-semibold">B&amp;D Produtos Naturais</p>
+        </div>
+        <a href="https://wa.me/5582994003591" target="_blank" rel="noreferrer" className="flex items-center gap-2 text-sm hover:text-primary"><Phone className="h-4 w-4 text-primary" />(82) 9 9400-3591</a>
+        <a href="https://instagram.com/bdprodutos" target="_blank" rel="noreferrer" className="flex items-center gap-2 text-sm hover:text-primary"><Instagram className="h-4 w-4 text-primary" />@bdprodutos</a>
+        <p className="flex items-center gap-2 text-sm text-muted-foreground"><Clock className="h-4 w-4 text-primary" />Horário a definir</p>
+      </CardContent>
+    </Card>
+  );
+}
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
   head: () => ({
@@ -94,6 +109,8 @@ function OwnerDashboard() {
         <h1 className="font-display text-2xl font-semibold">Painel do Dono</h1>
         <p className="text-sm text-muted-foreground">Visão geral da operação B&amp;D Produtos Naturais</p>
       </div>
+      <StoreInfo />
+
 
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         <Stat icon={<HandCoins className="h-5 w-5" />} label="Vendas hoje" value={brl(data.totalSales)} tone="bg-success text-success-foreground" />
@@ -180,6 +197,8 @@ function SupervisorDashboard() {
         <h1 className="font-display text-2xl font-semibold">Painel do Supervisor</h1>
         <p className="text-sm text-muted-foreground">Equipe: {team?.name ?? "Sua equipe"}</p>
       </div>
+      <StoreInfo />
+
 
       <div className="grid grid-cols-2 gap-3">
         <Stat icon={<Users className="h-5 w-5" />} label="Vendedores na equipe" value={String(data?.members.length ?? 0)} />
@@ -232,6 +251,8 @@ function SellerDashboard() {
         <h1 className="font-display text-2xl font-semibold">Olá, {profile?.full_name?.split(" ")[0]}!</h1>
         <p className="text-sm text-muted-foreground">Bom trabalho por aí</p>
       </div>
+      <StoreInfo />
+
 
       <div className="grid grid-cols-2 gap-3">
         <Stat icon={<Boxes className="h-5 w-5" />} label="Produtos com você" value={`${units} un.`} />
