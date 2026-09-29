@@ -1,6 +1,6 @@
 ---
-name: Visual Direction
-description: Direção visual para Q1/Q2 2026: paletas de cores estruturadas com funções semânticas, combinações de fontes com contraste de tamanho (3x display vs. corpo), layouts assimétricos que quebram o grid tradicional, e uso estratégico de imagens. Define o tom visual do projeto alinhado às tendências atuais de mercado.
+name: visual-direction
+description: "Direção visual para Q1/Q2 2026: paletas de cores estruturadas com funções semânticas, combinações de fontes com contraste de tamanho (3x display vs. corpo), layouts assimétricos que quebram o grid tradicional, e uso estratégico de imagens. Define o tom visual do projeto alinhado às tendências atuais de mercado."
 ---
 
 Analyze this project and provide updated visual direction recommendations based on current 2026 design trends from Dribbble, Behance, Land-book, and Godly.
