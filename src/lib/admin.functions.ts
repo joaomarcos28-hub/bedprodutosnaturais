@@ -2,10 +2,6 @@ import { createServerFn } from "@tanstack/react-start";
 
 export const ADMIN_EMAIL = "bed@bed-produtos.app";
 const INITIAL_PASSWORD = "Padrao";
-
-  const u = data.users.find((x) => x.email === ADMIN_EMAIL);
-  if (!u) return { ok: false, reason: "not found" };
-  const { error } = await supabaseAdmin.auth.admin.updateUserById(u.id, { password: INITIAL_PASSWORD });
   return { ok: !error, reason: error?.message ?? null };
 });
 
