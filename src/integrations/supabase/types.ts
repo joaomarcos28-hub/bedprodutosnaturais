@@ -270,9 +270,11 @@ export type Database = {
           created_at: string
           customer_name: string | null
           day_number: number | null
+          due_date: string | null
           id: string
           latitude: number | null
           longitude: number | null
+          paid_at: string | null
           payment_method: string
           photo_url: string | null
           registered_by: string | null
@@ -285,9 +287,11 @@ export type Database = {
           created_at?: string
           customer_name?: string | null
           day_number?: number | null
+          due_date?: string | null
           id?: string
           latitude?: number | null
           longitude?: number | null
+          paid_at?: string | null
           payment_method?: string
           photo_url?: string | null
           registered_by?: string | null
@@ -300,9 +304,11 @@ export type Database = {
           created_at?: string
           customer_name?: string | null
           day_number?: number | null
+          due_date?: string | null
           id?: string
           latitude?: number | null
           longitude?: number | null
+          paid_at?: string | null
           payment_method?: string
           photo_url?: string | null
           registered_by?: string | null
@@ -422,6 +428,7 @@ export type Database = {
         Args: { p_delta: number; p_note?: string; p_product_id: string }
         Returns: undefined
       }
+      can_manage_sale: { Args: { p_sale_id: string }; Returns: boolean }
       clear_movements: { Args: never; Returns: number }
       delete_sale: { Args: { p_sale_id: string }; Returns: undefined }
       deliver_to_seller: {
@@ -439,6 +446,10 @@ export type Database = {
       is_team_supervisor: {
         Args: { p_seller: string; p_supervisor: string }
         Returns: boolean
+      }
+      mark_sale_paid: {
+        Args: { p_paid: boolean; p_sale_id: string }
+        Returns: undefined
       }
       register_sale: {
         Args: {
@@ -461,6 +472,10 @@ export type Database = {
           p_total: number
         }
         Returns: string
+      }
+      set_sale_due_date: {
+        Args: { p_due: string; p_sale_id: string }
+        Returns: undefined
       }
     }
     Enums: {

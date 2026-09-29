@@ -40,6 +40,7 @@ export function VenderPage() {
   const [items, setItems] = useState<{ productId: string; name: string; price: number; qty: number }[]>([]);
   const [customer, setCustomer] = useState("");
   const [payment, setPayment] = useState<"pix" | "dinheiro" | "prazo">("pix");
+  const [dueDate, setDueDate] = useState("");
   const [shareLocation, setShareLocation] = useState(false);
   const [step, setStep] = useState<1 | 2>(1);
   const [photoFile, setPhotoFile] = useState<File | null>(null);
@@ -116,8 +117,12 @@ export function VenderPage() {
       }
       if (photoPath) rpcArgs.p_photo = photoPath;
       if (sigPath) rpcArgs.p_signature = sigPath;
+      if (payment === "prazo" && !dueDate) throw new Error("Informe a data de vencimento.");
       const { data: saleId, error } = await supabase.rpc("register_sale", rpcArgs);
       if (error) throw error;
+      if (payment === "prazo" && saleId) {
+        await supabase.rpc("set_sale_due_date", { p_sale_id: saleId as string, p_due: dueDate });
+      }
       if (latitude != null && longitude != null) {
         await supabase.from("location_pings").insert({ seller_id: uid, latitude, longitude });
       }
@@ -294,6 +299,12 @@ export function VenderPage() {
                     </button>
                   ))}
                 </div>
+                {payment === "prazo" && (
+                  <div className="pt-2">
+                    <Label>Vencimento</Label>
+                    <input type="date" value={dueDate} onChange={(e) => setDueDate(e.target.value)} className="h-11 w-full rounded-lg border border-border bg-background px-3 text-sm" />
+                  </div>
+                )}
               </div>
 
               <label className="flex items-start gap-2 rounded-lg bg-secondary/50 p-3 text-sm">
