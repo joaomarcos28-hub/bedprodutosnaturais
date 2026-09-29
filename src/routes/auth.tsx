@@ -62,6 +62,15 @@ function AuthPage() {
       className="relative flex min-h-screen items-end justify-center bg-background bg-cover bg-center bg-no-repeat px-4 pb-8 sm:items-center sm:pb-0 lg:justify-end lg:pr-[8vw]"
       style={{ backgroundImage: `url(${bgImage})` }}
     >
+      <div className="absolute left-4 right-4 top-6 rounded-3xl bg-card/75 p-4 text-center shadow-elegant backdrop-blur-sm sm:left-8 sm:right-auto sm:text-left lg:left-[6vw] lg:top-1/2 lg:-translate-y-1/2 lg:p-8">
+        <p className="font-display text-4xl font-bold text-primary lg:text-6xl">B&D</p>
+        <p className="font-display text-lg font-semibold text-primary lg:text-2xl">Produtos Naturais</p>
+        <div className="mt-2 space-y-0.5 text-sm font-semibold text-foreground lg:mt-4 lg:text-base">
+          <a href="https://wa.me/5582994003591" target="_blank" rel="noreferrer" className="block hover:underline">Fone (82) 99400-3591</a>
+          <a href="https://instagram.com/bdprodutos" target="_blank" rel="noreferrer" className="block hover:underline">Instagram @bdprodutos</a>
+        </div>
+      </div>
+
       <div className="relative w-full max-w-md rounded-3xl bg-card/80 p-6 shadow-elegant backdrop-blur-md">
         <div className="mb-6 flex flex-col items-center gap-2 text-center">
           <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-primary text-primary-foreground">
