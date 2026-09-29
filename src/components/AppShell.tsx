@@ -86,10 +86,6 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           </nav>
 
           <div className="ml-auto flex items-center gap-2 md:ml-2">
-            <div className="hidden min-w-0 max-w-[10rem] text-right sm:block">
-              <p className="truncate text-sm font-medium leading-tight">{profile?.full_name ?? session?.user?.email}</p>
-              <p className="text-xs text-muted-foreground">{role ? roleLabels[role] : "…"}</p>
-            </div>
             <Button variant="ghost" size="icon" onClick={handleLogout} aria-label="Sair">
               <LogOut className="h-4 w-4" />
             </Button>
