@@ -128,10 +128,7 @@
     -webkit-font-smoothing: antialiased;
   }
 
-  body {
-    background-image: var(--gradient-hero);
-    background-repeat: no-repeat;
-  }
+
 
   html { -webkit-tap-highlight-color: transparent; scroll-behavior: smooth; }
   ::selection { background: color-mix(in oklab, var(--gold) 35%, transparent); }
