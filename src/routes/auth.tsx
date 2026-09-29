@@ -24,7 +24,7 @@ export const Route = createFileRoute("/auth")({
 });
 
 function AuthPage() {
-  const [mode, setMode] = useState<"admin" | "team">("admin");
+  const mode = "admin" as "admin" | "team";
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
@@ -111,14 +111,6 @@ function AuthPage() {
                 {busy ? "Entrando…" : "Entrar"}
               </Button>
             </form>
-
-            <button
-              type="button"
-              className="mt-4 w-full text-center text-sm text-muted-foreground underline-offset-4 hover:underline"
-              onClick={() => { setMode(mode === "admin" ? "team" : "admin"); setPassword(""); }}
-            >
-              {mode === "admin" ? "Sou supervisor ou vendedor" : "Entrar como administrador B&D"}
-            </button>
           </CardContent>
         </Card>
       </div>
