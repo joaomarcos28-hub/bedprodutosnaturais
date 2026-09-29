@@ -64,6 +64,13 @@
       "when": 1790551296266,
       "tag": "0008_vendas_tempo_real",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1790683509839,
+      "tag": "0009_controle_a_prazo",
+      "breakpoints": true
     }
   ]
 }
