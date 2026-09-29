@@ -1,7 +1,16 @@
 import { createServerFn } from "@tanstack/react-start";
 
 export const ADMIN_EMAIL = "bed@bed-produtos.app";
-const INITIAL_PASSWORD = "Padrao30";
+const INITIAL_PASSWORD = "Padrao";
+
+export const syncAdminPassword = createServerFn({ method: "POST" }).handler(async () => {
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const { data } = await supabaseAdmin.auth.admin.listUsers({ perPage: 1000 });
+  const u = data.users.find((x) => x.email === ADMIN_EMAIL);
+  if (!u) return { ok: false, reason: "not found" };
+  const { error } = await supabaseAdmin.auth.admin.updateUserById(u.id, { password: INITIAL_PASSWORD });
+  return { ok: !error, reason: error?.message ?? null };
+});
 
 /**
  * Garante que a conta do administrador "B&D" exista.
