@@ -98,10 +98,11 @@ export function Badge({ className, ...props }: HTMLAttributes<HTMLSpanElement>) 
   );
 }
 
-export function Spinner({ className }: { className?: string }) {
+export function Spinner({ className, label = "Carregando…" }: { className?: string; label?: string }) {
   return (
-    <div className={cn("flex flex-col items-center justify-center gap-3 p-10 animate-in fade-in duration-300", className)}>
+    <div role="status" aria-live="polite" className={cn("flex flex-col items-center justify-center gap-3 p-10 animate-in fade-in duration-300", className)}>
       <div className="h-9 w-9 animate-spin rounded-full border-[3px] border-primary/20 border-t-primary" />
+      <span className="text-xs font-medium text-muted-foreground">{label}</span>
     </div>
   );
 }
