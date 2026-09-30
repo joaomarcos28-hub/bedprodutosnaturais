@@ -136,7 +136,7 @@ export function VenderPage() {
     onSuccess: (saleId) => {
       toast.success("Venda registrada com sucesso!", {
         description: `${new Date().toLocaleString("pt-BR")} · ${brl(total)}`,
-        action: saleId ? { label: "Ver comprovante", onClick: () => void navigate({ to: "/vendas/$id", params: { id: saleId } }) } : undefined,
+        ...(saleId ? { action: { label: "Ver comprovante", onClick: () => void navigate({ to: "/vendas/$id", params: { id: saleId } }) } } : {}),
         duration: 8000,
       });
       queryClient.invalidateQueries({ queryKey: ["dashboard"] });

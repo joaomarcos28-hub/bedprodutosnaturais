@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 
-// Pede a localização assim que o vendedor abre o app e envia a posição
+// Pede a localização assim que o vendedor ou supervisor abre o app e envia a posição
 // para o mapa da equipe enquanto o app estiver aberto (no máximo a cada 20s).
 export function LocationTracker({ userId }: { userId: string }) {
   useEffect(() => {
@@ -11,7 +11,7 @@ export function LocationTracker({ userId }: { userId: string }) {
     const id = navigator.geolocation.watchPosition(
       (pos) => {
         const now = Date.now();
-        if (now - last < 20_000) return;
+        if (now - last < 15_000) return;
         last = now;
         void supabase.from("location_pings").insert({
           seller_id: userId,
