@@ -57,7 +57,7 @@ function MapaPage() {
       const teamName = new Map((teams.data ?? []).map((t) => [t.id, t.name]));
       const seen = new Set<string>();
       const latest = (pings.data ?? []).filter((p) => {
-        if (seen.has(p.seller_id) || !people.has(p.seller_id) || roleOf.get(p.seller_id) === "owner") return false;
+        if (seen.has(p.seller_id) || !people.has(p.seller_id) || (role === "supervisor" && p.seller_id === profile!.id) || roleOf.get(p.seller_id) === "owner") return false;
         seen.add(p.seller_id);
         return true;
       });
