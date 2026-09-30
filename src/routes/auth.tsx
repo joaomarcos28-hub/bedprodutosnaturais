@@ -28,6 +28,7 @@ function AuthPage() {
   const [loginId, setLoginId] = useState("");
   const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
+  const [teamMode, setTeamMode] = useState(false);
   const navigate = useNavigate();
   const { data: session } = useSession();
   const ensureAdmin = useServerFn(ensureAdminAccount);
@@ -41,7 +42,7 @@ function AuthPage() {
     setBusy(true);
     try {
       await ensureAdmin();
-      const inputVal = loginId.trim();
+      const inputVal = teamMode ? loginId.trim() : "";
       let targetEmail = inputVal;
       
       if (!inputVal.includes("@")) {
@@ -108,10 +109,12 @@ function AuthPage() {
         <Card>
           <CardContent className="pt-5">
             <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="space-y-1.5">
-                <Label htmlFor="login">E-mail <span className="font-normal text-muted-foreground">(deixe vazio se for o dono)</span></Label>
-                <Input id="login" type="text" inputMode="email" autoCapitalize="none" value={loginId} onChange={(e) => setLoginId(e.target.value)} autoComplete="username" placeholder="E-mail do supervisor ou vendedor" />
-              </div>
+              {teamMode && (
+                <div className="space-y-1.5">
+                  <Label htmlFor="login">E-mail</Label>
+                  <Input id="login" type="text" inputMode="email" autoCapitalize="none" value={loginId} onChange={(e) => setLoginId(e.target.value)} required autoComplete="username" placeholder="E-mail do supervisor ou vendedor" />
+                </div>
+              )}
               <div className="space-y-1.5">
                 <Label htmlFor="password">Senha</Label>
                 <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} required autoComplete="current-password" placeholder="Sua senha de acesso" />
@@ -119,6 +122,9 @@ function AuthPage() {
               <Button type="submit" className="w-full" disabled={busy}>
                 {busy ? "Entrando…" : "Entrar"}
               </Button>
+              <button type="button" onClick={() => { setTeamMode((v) => !v); setLoginId(""); setPassword(""); }} className="w-full rounded-xl py-2 text-sm font-semibold text-primary hover:bg-primary/10">
+                {teamMode ? "Voltar para o acesso do dono" : "Sou supervisor ou vendedor"}
+              </button>
             </form>
           </CardContent>
         </Card>
