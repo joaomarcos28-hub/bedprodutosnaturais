@@ -139,10 +139,20 @@
     line-height: 1.15;
     font-family: var(--font-heading);
     letter-spacing: -0.015em;
+    text-wrap: balance;
   }
+  p { text-wrap: pretty; }
+  main { animation: page-enter 0.28s ease-out both; }
+  button, a, [role="button"], label { transition-property: color, background-color, border-color, box-shadow, transform, opacity; transition-duration: 180ms; }
+  :focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; border-radius: 0.5rem; }
+  input[type="date"], select, input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not([type="range"]) { min-height: 2.75rem; font-size: max(16px, 0.875rem); }
+  @media (min-width: 768px) { select, input:not([type="checkbox"]):not([type="radio"]) { font-size: 0.875rem; } }
+  .font-display.font-bold, .font-display.text-2xl { font-variant-numeric: tabular-nums; }
+}
 
-  
-
+@keyframes page-enter {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: none; }
 }
 
 @utility leaflet-container {
