@@ -4,6 +4,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useMyProfile } from "@/lib/auth";
 import { brl } from "@/lib/format";
+import { dataUrlToBlob, getCurrentCoords, uploadReceipt } from "@/lib/sales";
 import { Badge, Button, Card, CardContent, CardHeader, CardTitle, Input, Label, Spinner } from "@/components/ui";
 import { Modal } from "@/components/Modal";
 import { QtyPicker } from "@/components/QtyPicker";
@@ -71,41 +72,14 @@ export function VenderPage() {
       if (items.length === 0) throw new Error("Adicione ao menos um produto.");
       if (!photoFile) throw new Error("Tire a foto antes de finalizar.");
       if (!signature) throw new Error("Peça a assinatura do cliente antes de finalizar.");
-
-      let latitude: number | null = null;
-      let longitude: number | null = null;
-      if ("geolocation" in navigator) {
-        try {
-          const pos = await new Promise<GeolocationPosition>((resolve, reject) =>
-            navigator.geolocation.getCurrentPosition(resolve, reject, { timeout: 12000, enableHighAccuracy: true, maximumAge: 15000 }),
-          );
-          latitude = pos.coords.latitude;
-          longitude = pos.coords.longitude;
-        } catch {
-          toast.warning("Não foi possível obter a localização. A venda será salva sem ela.");
-        }
-      }
-
       if (payment === "prazo" && !dueDate) throw new Error("Informe a data de vencimento.");
-      if (items.length === 0) throw new Error("Escolha pelo menos um produto.");
-      if (!photoFile || !signature) throw new Error("A foto e a assinatura são obrigatórias.");
 
-      let photoPath: string | null = null;
-      if (photoFile) {
-        photoPath = `${crypto.randomUUID()}/foto.jpg`;
-        const { error: upErr } = await supabase.storage.from("receipts").upload(photoPath, photoFile, { contentType: photoFile.type || "image/jpeg" });
-        if (upErr) throw new Error("Falha ao enviar a foto: " + upErr.message);
-      }
+      const coords = await getCurrentCoords();
+      if (!coords) toast.warning("Não foi possível obter a localização. A venda será salva sem ela.");
 
-      let sigPath: string | null = null;
-      if (signature) {
-        sigPath = `${crypto.randomUUID()}/assinatura.png`;
-        const blob = await (await fetch(signature)).blob();
-        const { error: upErr } = await supabase.storage.from("receipts").upload(sigPath, blob, { contentType: "image/png" });
-        if (upErr) throw new Error("Falha ao enviar a assinatura: " + upErr.message);
-      }
+      const photoPath = await uploadReceipt(photoFile, "foto.jpg", photoFile.type || "image/jpeg", "a foto");
+      const sigPath = await uploadReceipt(await dataUrlToBlob(signature), "assinatura.png", "image/png", "a assinatura");
 
-      const payloadItems = items.map((i) => ({ product_id: i.productId, quantity: i.qty }));
       const rpcArgs: {
         p_items: { product_id: string; quantity: number }[];
         p_payment: string;
@@ -114,22 +88,25 @@ export function VenderPage() {
         p_longitude?: number;
         p_photo?: string;
         p_signature?: string;
-      } = { p_items: payloadItems, p_payment: payment };
+      } = {
+        p_items: items.map((i) => ({ product_id: i.productId, quantity: i.qty })),
+        p_payment: payment,
+        p_photo: photoPath,
+        p_signature: sigPath,
+      };
       if (customer.trim()) rpcArgs.p_customer = customer.trim();
-      if (latitude != null && longitude != null) {
-        rpcArgs.p_latitude = latitude;
-        rpcArgs.p_longitude = longitude;
+      if (coords) {
+        rpcArgs.p_latitude = coords.latitude;
+        rpcArgs.p_longitude = coords.longitude;
       }
-      if (photoPath) rpcArgs.p_photo = photoPath;
-      if (sigPath) rpcArgs.p_signature = sigPath;
-      if (payment === "prazo" && !dueDate) throw new Error("Informe a data de vencimento.");
+
       const { data: saleId, error } = await supabase.rpc("register_sale", rpcArgs);
       if (error) throw error;
       if (payment === "prazo" && saleId) {
         await supabase.rpc("set_sale_due_date", { p_sale_id: saleId as string, p_due: dueDate });
       }
-      if (latitude != null && longitude != null) {
-        await supabase.from("location_pings").insert({ seller_id: uid, latitude, longitude });
+      if (coords) {
+        await supabase.from("location_pings").insert({ seller_id: uid, ...coords });
       }
       return saleId as string;
     },
