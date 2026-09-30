@@ -44,7 +44,7 @@ function AuthenticatedLayout() {
 
   return (
     <AppShell>
-      {role === "seller" && uid && <LocationTracker userId={uid} />}
+      {(role === "seller" || role === "supervisor") && uid && <LocationTracker userId={uid} />}
       {role === "owner" && <SaleNotifier />}
       <Outlet />
     </AppShell>
