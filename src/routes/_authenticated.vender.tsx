@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useRef, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -35,13 +35,14 @@ export function VenderPage() {
   const { data: profile, isLoading: profileLoading } = useMyProfile();
   const uid = profile?.id;
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
 
   const [tab, setTab] = useState<"estoque" | "venda">("estoque");
   const [items, setItems] = useState<{ productId: string; name: string; price: number; qty: number }[]>([]);
   const [customer, setCustomer] = useState("");
   const [payment, setPayment] = useState<"pix" | "dinheiro" | "prazo">("pix");
   const [dueDate, setDueDate] = useState("");
-  const [shareLocation, setShareLocation] = useState(false);
+  
   const [step, setStep] = useState<1 | 2>(1);
   const [photoFile, setPhotoFile] = useState<File | null>(null);
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
@@ -66,24 +67,28 @@ export function VenderPage() {
 
   const finishSale = useMutation({
     mutationFn: async () => {
-      if (!uid) throw new Error("Sess\u00e3o n\u00e3o encontrada.");
+      if (!uid) throw new Error("Sessão não encontrada.");
       if (items.length === 0) throw new Error("Adicione ao menos um produto.");
       if (!photoFile) throw new Error("Tire a foto antes de finalizar.");
-      if (!signature) throw new Error("Pe\u00e7a a assinatura do cliente antes de finalizar.");
+      if (!signature) throw new Error("Peça a assinatura do cliente antes de finalizar.");
 
       let latitude: number | null = null;
       let longitude: number | null = null;
-      if (shareLocation) {
+      if ("geolocation" in navigator) {
         try {
           const pos = await new Promise<GeolocationPosition>((resolve, reject) =>
-            navigator.geolocation.getCurrentPosition(resolve, reject, { timeout: 10000, enableHighAccuracy: true }),
+            navigator.geolocation.getCurrentPosition(resolve, reject, { timeout: 12000, enableHighAccuracy: true, maximumAge: 15000 }),
           );
           latitude = pos.coords.latitude;
           longitude = pos.coords.longitude;
         } catch {
-          toast.warning("N\u00e3o foi poss\u00edvel obter a localiza\u00e7\u00e3o. A venda ser\u00e1 salva sem ela.");
+          toast.warning("Não foi possível obter a localização. A venda será salva sem ela.");
         }
       }
+
+      if (payment === "prazo" && !dueDate) throw new Error("Informe a data de vencimento.");
+      if (items.length === 0) throw new Error("Escolha pelo menos um produto.");
+      if (!photoFile || !signature) throw new Error("A foto e a assinatura são obrigatórias.");
 
       let photoPath: string | null = null;
       if (photoFile) {
@@ -128,8 +133,15 @@ export function VenderPage() {
       }
       return saleId as string;
     },
-    onSuccess: () => {
-      toast.success("Venda registrada com sucesso!");
+    onSuccess: (saleId) => {
+      toast.success("Venda registrada com sucesso!", {
+        description: `${new Date().toLocaleString("pt-BR")} · ${brl(total)}`,
+        action: saleId ? { label: "Ver comprovante", onClick: () => void navigate({ to: "/vendas/$id", params: { id: saleId } }) } : undefined,
+        duration: 8000,
+      });
+      queryClient.invalidateQueries({ queryKey: ["dashboard"] });
+      setPayment("pix");
+      setDueDate("");
       queryClient.invalidateQueries({ queryKey: ["my-stock", uid] });
       queryClient.invalidateQueries({ queryKey: ["sales"] });
       setItems([]);
@@ -192,7 +204,7 @@ export function VenderPage() {
             {stock && stock.length === 0 && (
               <Card>
                 <CardContent className="p-8 text-center text-sm text-muted-foreground">
-                  Voc\u00ea ainda n\u00e3o recebeu produtos. Pe\u00e7a entrega ao seu supervisor.
+                  Você ainda não recebeu produtos. Peça entrega ao seu supervisor.
                 </CardContent>
               </Card>
             )}
@@ -220,7 +232,7 @@ export function VenderPage() {
                     if (f) {
                       setPhotoFile(f);
                       setPhotoPreview(URL.createObjectURL(f));
-                      toast.success("Foto registrada! Ela ser\u00e1 salva com a venda.");
+                      toast.success("Foto registrada! Ela será salva com a venda.");
                     }
                   }}
                 />
@@ -230,7 +242,7 @@ export function VenderPage() {
               {photoPreview && (
                 <div className="mb-3 rounded-xl border border-border overflow-hidden">
                   <img src={photoPreview} alt="Foto registrada" className="max-h-40 w-full object-cover" />
-                  <p className="px-3 py-1.5 text-xs text-muted-foreground">Foto registrada \u2714</p>
+                  <p className="px-3 py-1.5 text-xs text-muted-foreground">Foto registrada ✔</p>
                 </div>
               )}
               {stock?.map((r) =>
@@ -239,7 +251,7 @@ export function VenderPage() {
                     <div className="min-w-0">
                       <p className="truncate text-sm font-medium">{r.product.name}</p>
                       <p className="text-xs text-muted-foreground">
-                        {brl(r.product.sale_price)} \u00b7 {r.quantity} dispon\u00edveis
+                        {brl(r.product.sale_price)} · {r.quantity} disponíveis
                       </p>
                     </div>
                     <Button size="sm" variant="outline" onClick={() => addItem(r.product!.id, r.product!.name, Number(r.product!.sale_price), r.quantity)}>
@@ -254,7 +266,7 @@ export function VenderPage() {
           {/* Carrinho + cliente */}
           <Card>
             <CardHeader>
-              <CardTitle>2. Revis\u00e3o da venda</CardTitle>
+              <CardTitle>2. Revisão da venda</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               {items.length === 0 && <p className="text-sm text-muted-foreground">Nenhum produto escolhido ainda.</p>}
@@ -295,7 +307,7 @@ export function VenderPage() {
                         payment === p ? "border-primary bg-secondary text-secondary-foreground" : "border-border text-muted-foreground hover:bg-accent"
                       }`}
                     >
-                      {p === "pix" ? "PIX" : p === "dinheiro" ? "\u00c0 vista (dinheiro)" : "A prazo"}
+                      {p === "pix" ? "PIX" : p === "dinheiro" ? "À vista (dinheiro)" : "A prazo"}
                     </button>
                   ))}
                 </div>
@@ -307,15 +319,10 @@ export function VenderPage() {
                 )}
               </div>
 
-              <label className="flex items-start gap-2 rounded-lg bg-secondary/50 p-3 text-sm">
-                <input type="checkbox" checked={shareLocation} onChange={(e) => setShareLocation(e.target.checked)} className="mt-0.5" />
-                <span>
-                  <span className="inline-flex items-center gap-1 font-medium">
-                    <ShieldCheck className="h-4 w-4 text-primary" /> Registrar minha localiza\u00e7\u00e3o nesta venda
-                  </span>
-                  <span className="block text-xs text-muted-foreground">Opcional. S\u00f3 enviamos a localiza\u00e7\u00e3o se voc\u00ea autorizar.</span>
-                </span>
-              </label>
+              <p className="flex items-start gap-2 rounded-lg bg-secondary/50 p-3 text-xs text-muted-foreground">
+                <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
+                A localização, a data e a hora são salvas automaticamente junto com a venda.
+              </p>
 
               <div className="flex items-center justify-between border-t border-border pt-3">
                 <span className="text-sm text-muted-foreground">Total</span>
@@ -352,7 +359,7 @@ export function VenderPage() {
               />
               {photoPreview ? (
                 <button type="button" className="block w-full" onClick={() => photoInputRef.current?.click()} aria-label="Trocar foto">
-                  <img src={photoPreview} alt="Pr\u00e9via da ficha" className="max-h-48 w-full rounded-xl border border-border object-cover" />
+                  <img src={photoPreview} alt="Prévia da ficha" className="max-h-48 w-full rounded-xl border border-border object-cover" />
                   <span className="mt-1 block text-xs text-muted-foreground">Toque para trocar a foto</span>
                 </button>
               ) : (
@@ -374,7 +381,7 @@ export function VenderPage() {
 
             <Button className="w-full" size="lg" variant="success" disabled={finishSale.isPending || !photoFile || !signature} onClick={() => finishSale.mutate()}>
               <CheckCircle2 className="h-5 w-5" />
-              {finishSale.isPending ? "Registrando\u2026" : "Finalizar venda"}
+              {finishSale.isPending ? "Registrando…" : "Finalizar venda"}
             </Button>
             {(!photoFile || !signature) && (
               <p className="text-center text-xs text-muted-foreground">Falta: {[!photoFile && "foto", !signature && "assinatura"].filter(Boolean).join(" e ")}</p>
