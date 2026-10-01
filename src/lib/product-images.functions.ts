@@ -33,28 +33,38 @@ ${data.description ? `Detalhes: ${data.description}.` : ""}
 Embalagem realista e elegante com rótulo mostrando o nome "${data.name}".
 Fundo claro e natural, com folhas verdes, madeira clara e luz suave de janela. Composição quadrada, produto centralizado, sem outros textos.`;
 
-    const res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-      method: "POST",
-      headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
-      body: JSON.stringify({
-        model: "google/gemini-2.5-flash-image",
-        messages: [{ role: "user", content: prompt }],
-        modalities: ["image", "text"],
-      }),
-    });
-    if (res.status === 429) throw new Error("Muitas solicitações agora. Aguarde um pouco e tente de novo.");
-    if (res.status === 402) throw new Error("Os créditos de IA acabaram. Adicione créditos no seu plano.");
-    if (!res.ok) {
-      console.error("generateProductImage", res.status, await res.text());
-      throw new Error("Não foi possível gerar a imagem agora.");
+    const { geminiImage } = await import("./gemini-image.server");
+    const g = await geminiImage(prompt);
+    let mime: string;
+    let b64: string;
+    if (g) {
+      mime = g.mime;
+      b64 = g.b64;
+    } else {
+      const res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+        method: "POST",
+        headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
+        body: JSON.stringify({
+          model: "google/gemini-2.5-flash-image",
+          messages: [{ role: "user", content: prompt }],
+          modalities: ["image", "text"],
+        }),
+      });
+      if (res.status === 429) throw new Error("Muitas solicitações agora. Aguarde um pouco e tente de novo.");
+      if (res.status === 402) throw new Error("Os créditos de IA acabaram. Ative o faturamento na sua chave do Gemini ou adicione créditos.");
+      if (!res.ok) {
+        console.error("generateProductImage", res.status, await res.text());
+        throw new Error("Não foi possível gerar a imagem agora.");
+      }
+      const json = (await res.json()) as {
+        choices?: { message?: { images?: { image_url?: { url?: string } }[] } }[];
+      };
+      const dataUrl = json.choices?.[0]?.message?.images?.[0]?.image_url?.url;
+      const match = dataUrl?.match(/^data:(image\/\w+);base64,(.+)$/);
+      if (!match) throw new Error("A IA não retornou uma imagem. Tente de novo.");
+      mime = match[1]!;
+      b64 = match[2]!;
     }
-    const json = (await res.json()) as {
-      choices?: { message?: { images?: { image_url?: { url?: string } }[] } }[];
-    };
-    const dataUrl = json.choices?.[0]?.message?.images?.[0]?.image_url?.url;
-    const match = dataUrl?.match(/^data:(image\/\w+);base64,(.+)$/);
-    if (!match) throw new Error("A IA não retornou uma imagem. Tente de novo.");
-    const [, mime, b64] = match;
     const bytes = Uint8Array.from(atob(b64!), (c) => c.charCodeAt(0));
     const ext = mime === "image/jpeg" ? "jpg" : "png";
     const path = `${crypto.randomUUID()}.${ext}`;
@@ -147,19 +157,26 @@ export const analyzeProductPhoto = createServerFn({ method: "POST" })
 
     let path = "";
     let url = "";
+    let out: string | undefined;
     if (editRes.ok) {
       const ej = (await editRes.json()) as { data?: { b64_json?: string }[] };
-      const out = ej.data?.[0]?.b64_json;
-      if (out) {
-        const outBytes = Uint8Array.from(atob(out), (c) => c.charCodeAt(0));
-        path = `${crypto.randomUUID()}.png`;
-        const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-        const up = await supabaseAdmin.storage.from(BUCKET).upload(path, outBytes, { contentType: "image/png" });
-        if (up.error) path = "";
-        else url = (await supabaseAdmin.storage.from(BUCKET).createSignedUrl(path, 3600)).data?.signedUrl ?? "";
-      }
+      out = ej.data?.[0]?.b64_json;
     } else {
       console.error("analyzeProductPhoto edit", editRes.status, await editRes.text());
+      const { geminiImage } = await import("./gemini-image.server");
+      const g = await geminiImage(
+        "Turn this phone photo into a clean professional e-commerce product photo. Keep the exact same product, packaging, label text and colors. Center it, fix lighting, remove hands and clutter, soft light natural background. Square composition.",
+        { mime: mime!, b64: b64! },
+      );
+      out = g?.b64;
+    }
+    if (out) {
+      const outBytes = Uint8Array.from(atob(out), (c) => c.charCodeAt(0));
+      path = `${crypto.randomUUID()}.png`;
+      const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+      const up = await supabaseAdmin.storage.from(BUCKET).upload(path, outBytes, { contentType: "image/png" });
+      if (up.error) path = "";
+      else url = (await supabaseAdmin.storage.from(BUCKET).createSignedUrl(path, 3600)).data?.signedUrl ?? "";
     }
 
     return {
