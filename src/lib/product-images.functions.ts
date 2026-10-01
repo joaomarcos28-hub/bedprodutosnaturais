@@ -157,19 +157,26 @@ export const analyzeProductPhoto = createServerFn({ method: "POST" })
 
     let path = "";
     let url = "";
+    let out: string | undefined;
     if (editRes.ok) {
       const ej = (await editRes.json()) as { data?: { b64_json?: string }[] };
-      const out = ej.data?.[0]?.b64_json;
-      if (out) {
-        const outBytes = Uint8Array.from(atob(out), (c) => c.charCodeAt(0));
-        path = `${crypto.randomUUID()}.png`;
-        const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-        const up = await supabaseAdmin.storage.from(BUCKET).upload(path, outBytes, { contentType: "image/png" });
-        if (up.error) path = "";
-        else url = (await supabaseAdmin.storage.from(BUCKET).createSignedUrl(path, 3600)).data?.signedUrl ?? "";
-      }
+      out = ej.data?.[0]?.b64_json;
     } else {
       console.error("analyzeProductPhoto edit", editRes.status, await editRes.text());
+      const { geminiImage } = await import("./gemini-image.server");
+      const g = await geminiImage(
+        "Turn this phone photo into a clean professional e-commerce product photo. Keep the exact same product, packaging, label text and colors. Center it, fix lighting, remove hands and clutter, soft light natural background. Square composition.",
+        { mime: mime!, b64: b64! },
+      );
+      out = g?.b64;
+    }
+    if (out) {
+      const outBytes = Uint8Array.from(atob(out), (c) => c.charCodeAt(0));
+      path = `${crypto.randomUUID()}.png`;
+      const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+      const up = await supabaseAdmin.storage.from(BUCKET).upload(path, outBytes, { contentType: "image/png" });
+      if (up.error) path = "";
+      else url = (await supabaseAdmin.storage.from(BUCKET).createSignedUrl(path, 3600)).data?.signedUrl ?? "";
     }
 
     return {
