@@ -1,24 +1,85 @@
 ---
 name: design-system-pro
-description: "Gera um design system completo e justificado a partir do briefing do projeto: classifica domínio, público e mood para selecionar o padrão de layout, estilo visual, paleta de cores (tokens HSL), par tipográfico e efeitos visuais ideais. Baseado em 161 paletas, 84 estilos e 73 combinações tipográficas curadas, entrega também os anti-padrões a evitar para o perfil do projeto."
+description: Crie e mantenha um design system profissional com tokens, componentes documentados, Storybook e governança para equipes de produto.
 ---
 
-Generate a complete, justified design system for this project.
+# Design System Pro
 
-Analyze the project brief (domain, audience, mood, density) and produce in this exact order:
+> A design system is a product that serves other products. Treat it accordingly.
 
-1. LAYOUT PATTERN — Select the best layout pattern for this product category (e.g., Hero + Features + CTA, Sidebar + Data Tables, Hero-Centric + Social Proof). Justify the choice.
+## Scope
+Use this skill when creating a new design system, auditing an existing one, planning component documentation, setting up Storybook, or establishing design system governance.
 
-2. VISUAL STYLE — Select a visual style (glassmorphism, minimalism, brutalism, neumorphism, bento grid, dark mode, claymorphism, etc.). State what it is best for and confirm it does not conflict with the product domain.
+## Principles
+1. The Design System Serves Teams -- Not the Other Way Around
+2. Documentation Is the Product: Undocumented components don''t exist
+3. Token-First Architecture: Everything derives from tokens
+4. Version Everything: Breaking changes need major versions
+5. Adoption Requires Champions: Technical quality alone is not enough
 
-3. COLOR PALETTE — Select a palette appropriate for the product. Output all 10 tokens in HSL format ready for index.css: --primary, --secondary, --accent, --background, --foreground, --card, --muted, --border, --destructive, --ring. Verify contrast: 4.5:1 for body text, 3:1 for large text and UI elements.
+## Architecture
 
-4. TYPOGRAPHY PAIR — Select a heading + body font pair. Provide the Google Fonts import URL and Tailwind fontFamily config. Confirm max 2-3 families and font-display: swap.
+### Layer 1: Design Tokens
+```
+tokens/
+├── primitive.css      # Raw values: --blue-500: #3B82F6
+├── semantic.css       # Purpose: --color-primary: var(--blue-500)
+└── component.css      # Component-specific: --button-bg: var(--color-primary)
+```
 
-5. KEY EFFECTS — List 3-5 CSS effects/animations appropriate for the style (subtle hover states, scroll reveal, gradient animations, etc.).
+### Layer 2: Base Components
+Atomic components with no business logic:
+- Button (primary, secondary, ghost, destructive + all sizes)
+- Input (text, email, password, search, textarea)
+- Select, Checkbox, Radio, Toggle
+- Badge, Tag, Avatar
+- Icon (wrapper for icon library)
 
-6. UX GUARDRAILS — List the top 5 high-severity UX rules for this product category (navigation, forms, feedback, accessibility, performance).
+### Layer 3: Composite Components
+Built from base components:
+- Form (with validation)
+- Card (header, body, footer)
+- Modal, Drawer, Tooltip, Popover
+- DataTable (with pagination, sorting)
+- Navigation (header, sidebar, breadcrumb)
 
-7. ANTI-PATTERNS — List 5 design mistakes to avoid for this specific product type.
+### Layer 4: Patterns
+Full UI patterns using composite components:
+- Authentication forms
+- Dashboard layouts
+- Empty states
+- Error pages
 
-Format the output with clear section headers. If the brief is ambiguous, present 2 alternative directions (A and B) and ask me to choose.
+## Component API Standards
+Every component must have:
+- TypeScript props interface (fully typed)
+- Default props for optional params
+- `className` prop for style extension
+- `data-testid` support
+- ARIA compliance built-in
+- Storybook story with all variants
+
+## Documentation Requirements
+Each component in Storybook must include:
+1. Description: What it is and when to use it
+2. Props table: All props, types, defaults, description
+3. Stories: Default, all variants, all states
+4. Do''s and Don''ts: 2-3 each
+5. Accessibility notes
+6. Code example (copy-pasteable)
+
+## Versioning & Governance
+- Semantic versioning: major.minor.patch
+- Breaking changes: major version + migration guide
+- RFC process for new components (request for comments)
+- Design + Engineering review for all additions
+- Changelog maintained for every release
+
+## Checklist
+- [ ] Token architecture: primitive + semantic + component
+- [ ] All components have TypeScript interfaces
+- [ ] Storybook configured with all variants
+- [ ] Dark mode supported via CSS Custom Properties
+- [ ] Accessibility tested (axe-core in Storybook)
+- [ ] Changelog and versioning in place
+- [ ] Contributing guidelines documented
